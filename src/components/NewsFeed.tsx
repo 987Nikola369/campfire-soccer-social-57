@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Heart, MessageSquare, Image } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { AvatarFallback } from "@/components/ui/avatar";
@@ -9,10 +9,9 @@ const NewsFeed = () => {
   return (
     <div className="space-y-4 py-4">
       <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none">
-        <Input
+        <Textarea
           placeholder="Share something with the team..."
-          className="bg-[#2a2d31] border-none text-gray-300 mb-4 h-24"
-          multiline
+          className="bg-[#2a2d31] border-none text-gray-300 mb-4 min-h-[96px] resize-none"
         />
         <div className="flex justify-between items-center">
           <Button 
