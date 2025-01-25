@@ -1,16 +1,59 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Camera } from "lucide-react";
+import { useState } from "react";
 
 const Profile = () => {
+  const [showCoverUpload, setShowCoverUpload] = useState(false);
+  const [showAvatarUpload, setShowAvatarUpload] = useState(false);
+
   return (
     <div className="w-full max-w-4xl mx-auto animate-fade-in">
-      <div className="relative">
+      <div className="relative" 
+           onMouseEnter={() => setShowCoverUpload(true)}
+           onMouseLeave={() => setShowCoverUpload(false)}>
         <div className="h-48 w-full bg-gradient-to-r from-[#231F20] to-[#E41E12] rounded-t-lg"></div>
-        <div className="absolute -bottom-16 left-8">
-          <Avatar className="h-32 w-32 border-4 border-background">
+        {showCoverUpload && (
+          <Button
+            variant="secondary"
+            size="sm"
+            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70"
+            onClick={() => document.getElementById('cover-upload')?.click()}
+          >
+            <Camera className="mr-2 h-4 w-4" />
+            Update Cover
+          </Button>
+        )}
+        <input
+          type="file"
+          id="cover-upload"
+          className="hidden"
+          accept="image/*"
+        />
+        
+        <div className="absolute -bottom-16 left-8"
+             onMouseEnter={() => setShowAvatarUpload(true)}
+             onMouseLeave={() => setShowAvatarUpload(false)}>
+          <Avatar className="h-32 w-32 border-4 border-background relative">
             <AvatarFallback className="text-4xl">NI</AvatarFallback>
+            {showAvatarUpload && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="absolute inset-0 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center"
+                onClick={() => document.getElementById('avatar-upload')?.click()}
+              >
+                <Camera className="h-4 w-4" />
+              </Button>
+            )}
           </Avatar>
+          <input
+            type="file"
+            id="avatar-upload"
+            className="hidden"
+            accept="image/*"
+          />
         </div>
       </div>
       

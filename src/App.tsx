@@ -17,7 +17,7 @@ const App = () => (
       <div className="min-h-screen bg-[#231F20]">
         <header className="fixed top-0 w-full z-50 bg-[#1a1d21]/95 backdrop-blur-lg border-b border-white/10">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <img src="/lovable-uploads/1c1d9558-65a2-46c7-95bb-c69e831d91a7.png" alt="Logo" className="h-8" />
+            <img src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" alt="Logo" className="h-8" />
             <div className="flex items-center gap-6">
               <a href="/" className="text-white/70 hover:text-white transition-colors">
                 <Home className="h-5 w-5" />
