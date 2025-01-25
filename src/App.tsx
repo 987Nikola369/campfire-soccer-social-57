@@ -3,10 +3,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Home, Users, MessageSquare, Bell, LogOut } from "lucide-react";
+import { Home, MessageSquare, Bell, LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import Index from "./pages/Index";
 import Profile from "./components/Profile";
+import Messages from "./components/Messages";
 
 const queryClient = new QueryClient();
 
@@ -20,9 +21,6 @@ const App = () => (
             <div className="flex items-center gap-6">
               <a href="/" className="text-white/70 hover:text-white transition-colors">
                 <Home className="h-5 w-5" />
-              </a>
-              <a href="/users" className="text-white/70 hover:text-white transition-colors">
-                <Users className="h-5 w-5" />
               </a>
               <a href="/messages" className="text-white/70 hover:text-white transition-colors">
                 <MessageSquare className="h-5 w-5" />
@@ -47,6 +45,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/messages" element={<Messages />} />
             </Routes>
           </div>
         </main>
