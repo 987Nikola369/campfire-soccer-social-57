@@ -1,19 +1,59 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Profile = () => {
   const [showCoverUpload, setShowCoverUpload] = useState(false);
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const [avatarImage, setAvatarImage] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    // Load saved images from localStorage on component mount
+    const savedCoverImage = localStorage.getItem('coverImage');
+    const savedAvatarImage = localStorage.getItem('avatarImage');
+    if (savedCoverImage) setCoverImage(savedCoverImage);
+    if (savedAvatarImage) setAvatarImage(savedAvatarImage);
+  }, []);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'cover' | 'avatar') => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const imageUrl = reader.result as string;
+      if (type === 'cover') {
+        setCoverImage(imageUrl);
+        localStorage.setItem('coverImage', imageUrl);
+      } else {
+        setAvatarImage(imageUrl);
+        localStorage.setItem('avatarImage', imageUrl);
+      }
+      
+      toast({
+        title: "Success",
+        description: `${type === 'cover' ? 'Cover' : 'Profile'} image updated successfully`,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto animate-fade-in">
       <div className="relative" 
            onMouseEnter={() => setShowCoverUpload(true)}
            onMouseLeave={() => setShowCoverUpload(false)}>
-        <div className="h-48 w-full bg-gradient-to-r from-[#231F20] to-[#E41E12] rounded-t-lg"></div>
+        <div 
+          className="h-48 w-full rounded-t-lg bg-cover bg-center"
+          style={{
+            backgroundImage: coverImage ? `url(${coverImage})` : 'linear-gradient(to right, #231F20, #E41E12)'
+          }}
+        ></div>
         {showCoverUpload && (
           <Button
             variant="secondary"
@@ -30,13 +70,18 @@ const Profile = () => {
           id="cover-upload"
           className="hidden"
           accept="image/*"
+          onChange={(e) => handleImageUpload(e, 'cover')}
         />
         
         <div className="absolute -bottom-16 left-8"
              onMouseEnter={() => setShowAvatarUpload(true)}
              onMouseLeave={() => setShowAvatarUpload(false)}>
           <Avatar className="h-32 w-32 border-4 border-background relative">
-            <AvatarFallback className="text-4xl">NI</AvatarFallback>
+            {avatarImage ? (
+              <AvatarImage src={avatarImage} alt="Profile" />
+            ) : (
+              <AvatarFallback className="text-4xl">NI</AvatarFallback>
+            )}
             {showAvatarUpload && (
               <Button
                 variant="secondary"
@@ -53,6 +98,7 @@ const Profile = () => {
             id="avatar-upload"
             className="hidden"
             accept="image/*"
+            onChange={(e) => handleImageUpload(e, 'avatar')}
           />
         </div>
       </div>
@@ -63,9 +109,6 @@ const Profile = () => {
             <h1 className="text-2xl font-bold">Nikola</h1>
             <p className="text-muted-foreground">Member since 1/25/2025</p>
           </div>
-          <Button variant="secondary" className="bg-[#2a2d31] hover:bg-[#3a3d41] text-white border-none">
-            Edit Profile
-          </Button>
         </div>
         
         <div className="mt-8">
