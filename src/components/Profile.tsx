@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { Post } from "@/types/post";
 
 const Profile = () => {
   const [showCoverUpload, setShowCoverUpload] = useState(false);
@@ -14,6 +15,7 @@ const Profile = () => {
   const [pendingAvatarImage, setPendingAvatarImage] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     // Load saved images from localStorage on component mount
@@ -21,6 +23,16 @@ const Profile = () => {
     const savedAvatarImage = localStorage.getItem('avatarImage');
     if (savedCoverImage) setCoverImage(savedCoverImage);
     if (savedAvatarImage) setAvatarImage(savedAvatarImage);
+  }, []);
+
+  useEffect(() => {
+    const savedPosts = localStorage.getItem('posts');
+    if (savedPosts) {
+      const allPosts = JSON.parse(savedPosts);
+      // Filter posts to show only the current user's posts
+      const userPosts = allPosts.filter((post: Post) => post.userId === "current-user");
+      setPosts(userPosts);
+    }
   }, []);
 
   const cropToSquare = (imageUrl: string): Promise<string> => {
@@ -159,7 +171,52 @@ const Profile = () => {
         <div className="mt-8">
           <Card className="bg-[#1a1d21]/90 backdrop-blur-lg border-none p-6">
             <h2 className="text-xl font-semibold mb-4">Posts</h2>
-            <p className="text-muted-foreground text-center py-8">No posts yet</p>
+            {posts.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">No posts yet</p>
+            ) : (
+              <div className="space-y-4">
+                {posts.map((post) => (
+                  <Card key={post.id} className="p-4 bg-[#2a2d31] border-none">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Avatar>
+                        <AvatarFallback className="bg-[#3a3d41] text-white">
+                          {post.userName.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <h3 className="font-semibold text-white">{post.userName}</h3>
+                        <p className="text-sm text-gray-400">
+                          {new Date(post.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    <p className="mb-4 text-gray-200">{post.content}</p>
+                    
+                    {post.mediaUrl && (
+                      <div className="mb-4">
+                        {post.mediaType === 'image' ? (
+                          <img src={post.mediaUrl} alt="Post media" className="max-h-96 rounded-lg" />
+                        ) : (
+                          <video src={post.mediaUrl} className="max-h-96 rounded-lg" controls />
+                        )}
+                      </div>
+                    )}
+
+                    <div className="flex gap-4 text-gray-400">
+                      <div className="flex items-center gap-1">
+                        <Heart className="w-4 h-4" />
+                        <span>{post.likes.length}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MessageSquare className="w-4 h-4" />
+                        <span>{post.comments.length}</span>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
       </div>

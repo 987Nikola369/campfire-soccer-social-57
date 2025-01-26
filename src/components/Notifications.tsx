@@ -1,17 +1,72 @@
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
+import { Heart, MessageSquare, Reply } from "lucide-react";
+import { Notification } from "@/types/post";
 
 const Notifications = () => {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  useEffect(() => {
+    const savedNotifications = localStorage.getItem('notifications');
+    if (savedNotifications) {
+      setNotifications(JSON.parse(savedNotifications));
+    }
+  }, []);
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'like':
+        return <Heart className="w-5 h-5 text-[#E41E12]" />;
+      case 'comment':
+        return <MessageSquare className="w-5 h-5 text-blue-500" />;
+      case 'reply':
+        return <Reply className="w-5 h-5 text-green-500" />;
+      default:
+        return null;
+    }
+  };
+
+  const getNotificationText = (notification: Notification) => {
+    switch (notification.type) {
+      case 'like':
+        return `liked your post`;
+      case 'comment':
+        return `commented on your post`;
+      case 'reply':
+        return `replied to your comment`;
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="space-y-4 py-4 animate-fade-in">
-      <Card className="p-4 bg-black/30 backdrop-blur-lg border-none">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[#E41E12]"></div>
-          <div>
-            <h3 className="font-semibold">Team Update</h3>
-            <p className="text-sm text-gray-400">New practice schedule posted</p>
-          </div>
-        </div>
-      </Card>
+      {notifications.length === 0 ? (
+        <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none">
+          <p className="text-center text-gray-400">No notifications yet</p>
+        </Card>
+      ) : (
+        notifications.map((notification) => (
+          <Card 
+            key={notification.id} 
+            className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none hover:bg-[#2a2d31] transition-colors"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#2a2d31] flex items-center justify-center">
+                {getNotificationIcon(notification.type)}
+              </div>
+              <div>
+                <p className="font-semibold text-white">
+                  {notification.actorName} {getNotificationText(notification)}
+                </p>
+                <p className="text-sm text-gray-400">
+                  {new Date(notification.createdAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </Card>
+        ))
+      )}
     </div>
   );
 };
