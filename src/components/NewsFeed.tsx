@@ -72,7 +72,7 @@ const NewsFeed = () => {
         const userId = "current-user";
         const hasLiked = post.likes.includes(userId);
         
-        // Create notification if it's a like
+        // Only create notification if it's not a self-like
         if (!hasLiked && post.userId !== userId) {
           const notification: Notification = {
             id: uuidv4(),
@@ -154,9 +154,9 @@ const NewsFeed = () => {
         {mediaPreview && (
           <div className="mb-4 relative">
             {mediaFile?.type.startsWith('image/') ? (
-              <img src={mediaPreview} alt="Upload preview" className="max-h-96 rounded-lg" />
+              <img src={mediaPreview} alt="Upload preview" className="w-full max-h-96 object-cover rounded-lg" />
             ) : (
-              <video src={mediaPreview} className="max-h-96 rounded-lg" controls />
+              <video src={mediaPreview} className="w-full max-h-96 rounded-lg" controls />
             )}
             <Button
               variant="destructive"
@@ -171,12 +171,12 @@ const NewsFeed = () => {
             </Button>
           </div>
         )}
-        <div className="flex justify-between items-center">
-          <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2"
+              className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2 flex-1 sm:flex-none"
               onClick={() => document.getElementById('image-upload')?.click()}
             >
               <ImageIcon className="w-5 h-5" />
@@ -185,7 +185,7 @@ const NewsFeed = () => {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2"
+              className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2 flex-1 sm:flex-none"
               onClick={() => document.getElementById('video-upload')?.click()}
             >
               <Video className="w-5 h-5" />
@@ -207,7 +207,7 @@ const NewsFeed = () => {
             />
           </div>
           <Button 
-            className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white px-6"
+            className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white px-6 w-full sm:w-auto"
             onClick={handlePost}
             disabled={!newPost.trim() && !mediaFile}
           >
@@ -232,14 +232,14 @@ const NewsFeed = () => {
             </div>
           </div>
           
-          <p className="mb-4 text-gray-200">{post.content}</p>
+          <p className="mb-4 text-gray-200 break-words">{post.content}</p>
           
           {post.mediaUrl && (
             <div className="mb-4">
               {post.mediaType === 'image' ? (
-                <img src={post.mediaUrl} alt="Post media" className="max-h-96 rounded-lg" />
+                <img src={post.mediaUrl} alt="Post media" className="w-full max-h-96 object-cover rounded-lg" />
               ) : (
-                <video src={post.mediaUrl} className="max-h-96 rounded-lg" controls />
+                <video src={post.mediaUrl} className="w-full max-h-96 rounded-lg" controls />
               )}
             </div>
           )}
@@ -262,17 +262,16 @@ const NewsFeed = () => {
             </Button>
           </div>
 
-          {/* Comments Section */}
           <div className="mt-4 space-y-4">
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-col sm:flex-row">
               <Textarea
                 placeholder="Write a comment..."
-                className="bg-[#2a2d31] border-none text-gray-300 resize-none min-h-[40px]"
+                className="bg-[#2a2d31] border-none text-gray-300 resize-none min-h-[40px] flex-1"
                 id={`comment-${post.id}`}
               />
               <Button
                 size="sm"
-                className="bg-[#E41E12] hover:bg-[#E41E12]/90"
+                className="bg-[#E41E12] hover:bg-[#E41E12]/90 w-full sm:w-auto"
                 onClick={() => {
                   const textarea = document.getElementById(`comment-${post.id}`) as HTMLTextAreaElement;
                   handleComment(post.id, textarea.value);
@@ -284,8 +283,8 @@ const NewsFeed = () => {
             </div>
             
             {post.comments.map((comment) => (
-              <div key={comment.id} className="pl-8 pt-2">
-                <div className="flex items-center gap-2">
+              <div key={comment.id} className="pl-4 sm:pl-8 pt-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Avatar className="h-6 w-6">
                     <AvatarFallback className="text-xs">
                       {comment.userName.slice(0, 2).toUpperCase()}
@@ -296,7 +295,7 @@ const NewsFeed = () => {
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-gray-300">{comment.content}</p>
+                <p className="mt-1 text-sm text-gray-300 break-words">{comment.content}</p>
               </div>
             ))}
           </div>
