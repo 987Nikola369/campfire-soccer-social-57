@@ -10,6 +10,9 @@ const Profile = () => {
   const [showAvatarUpload, setShowAvatarUpload] = useState(false);
   const [coverImage, setCoverImage] = useState<string | null>(null);
   const [avatarImage, setAvatarImage] = useState<string | null>(null);
+  const [pendingCoverImage, setPendingCoverImage] = useState<string | null>(null);
+  const [pendingAvatarImage, setPendingAvatarImage] = useState<string | null>(null);
+  const [hasChanges, setHasChanges] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -20,27 +23,60 @@ const Profile = () => {
     if (savedAvatarImage) setAvatarImage(savedAvatarImage);
   }, []);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'cover' | 'avatar') => {
+  const cropToSquare = (imageUrl: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const size = Math.min(img.width, img.height);
+        canvas.width = size;
+        canvas.height = size;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(imageUrl);
+        
+        const offsetX = (img.width - size) / 2;
+        const offsetY = (img.height - size) / 2;
+        
+        ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = imageUrl;
+    });
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'cover' | 'avatar') => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const imageUrl = reader.result as string;
       if (type === 'cover') {
-        setCoverImage(imageUrl);
-        localStorage.setItem('coverImage', imageUrl);
+        setPendingCoverImage(imageUrl);
       } else {
-        setAvatarImage(imageUrl);
-        localStorage.setItem('avatarImage', imageUrl);
+        const croppedImage = await cropToSquare(imageUrl);
+        setPendingAvatarImage(croppedImage);
       }
-      
-      toast({
-        title: "Success",
-        description: `${type === 'cover' ? 'Cover' : 'Profile'} image updated successfully`,
-      });
+      setHasChanges(true);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleSaveChanges = () => {
+    if (pendingCoverImage) {
+      setCoverImage(pendingCoverImage);
+      localStorage.setItem('coverImage', pendingCoverImage);
+    }
+    if (pendingAvatarImage) {
+      setAvatarImage(pendingAvatarImage);
+      localStorage.setItem('avatarImage', pendingAvatarImage);
+    }
+    setHasChanges(false);
+    toast({
+      title: "Success",
+      description: "Profile images updated successfully",
+    });
   };
 
   return (
@@ -51,7 +87,9 @@ const Profile = () => {
         <div 
           className="h-48 w-full rounded-t-lg bg-cover bg-center"
           style={{
-            backgroundImage: coverImage ? `url(${coverImage})` : 'linear-gradient(to right, #231F20, #E41E12)'
+            backgroundImage: pendingCoverImage || coverImage ? 
+              `url(${pendingCoverImage || coverImage})` : 
+              'linear-gradient(to right, #231F20, #E41E12)'
           }}
         ></div>
         {showCoverUpload && (
@@ -73,12 +111,12 @@ const Profile = () => {
           onChange={(e) => handleImageUpload(e, 'cover')}
         />
         
-        <div className="absolute -bottom-16 left-8"
+        <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2"
              onMouseEnter={() => setShowAvatarUpload(true)}
              onMouseLeave={() => setShowAvatarUpload(false)}>
           <Avatar className="h-32 w-32 border-4 border-background relative">
-            {avatarImage ? (
-              <AvatarImage src={avatarImage} alt="Profile" />
+            {(pendingAvatarImage || avatarImage) ? (
+              <AvatarImage src={pendingAvatarImage || avatarImage} alt="Profile" />
             ) : (
               <AvatarFallback className="text-4xl">NI</AvatarFallback>
             )}
@@ -104,11 +142,18 @@ const Profile = () => {
       </div>
       
       <div className="mt-20 px-8">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold">Nikola</h1>
-            <p className="text-muted-foreground">Member since 1/25/2025</p>
-          </div>
+        <div className="flex flex-col items-center">
+          <h1 className="text-2xl font-bold">Nikola</h1>
+          <p className="text-muted-foreground">Member since 1/25/2025</p>
+          {hasChanges && (
+            <Button 
+              variant="secondary" 
+              className="mt-4 bg-[#2a2d31] hover:bg-[#3a3d41] text-white border-none"
+              onClick={handleSaveChanges}
+            >
+              Save Changes
+            </Button>
+          )}
         </div>
         
         <div className="mt-8">
