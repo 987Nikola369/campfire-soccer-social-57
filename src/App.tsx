@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
-import { Users, MessageSquare, Bell, ChevronDown } from "lucide-react";
+import { Users, MessageSquare, Bell, ChevronDown, Home } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -47,6 +47,9 @@ const Header = () => {
       case 'reply':
         navigate(`/post/${notification.postId}#comment-${notification.id}`);
         break;
+      case 'comment_like':
+        navigate(`/post/${notification.postId}#comment-${notification.id}`);
+        break;
     }
   };
 
@@ -60,10 +63,13 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <img src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" alt="Logo" className="h-8" />
         <div className="flex items-center gap-6">
+          <a href="/academy" className="text-white/70 hover:text-white transition-colors">
+            <Home className="h-5 w-5" />
+          </a>
           <a href="/" className="text-white/70 hover:text-white transition-colors">
             <Users className="h-5 w-5" />
           </a>
-          <a href="/academy" className="text-white/70 hover:text-white transition-colors">
+          <a href="/messages" className="text-white/70 hover:text-white transition-colors">
             <MessageSquare className="h-5 w-5" />
           </a>
           

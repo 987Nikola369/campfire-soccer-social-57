@@ -43,7 +43,7 @@ const Academy = () => {
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <h3 className="font-semibold text-white">Academy Staff</h3>
+              <h3 className="font-semibold text-[#ea384c]">Academy Staff</h3>
               <p className="text-sm text-gray-400">
                 {new Date(post.createdAt).toLocaleDateString()}
               </p>
