@@ -17,12 +17,7 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
   const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
 
   const createNotification = (type: 'like' | 'comment' | 'reply' | 'comment_like', targetId: string) => {
-    const isOwnContent = type === 'like' ? 
-      post.userId === "current-user" : 
-      post.comments.find(c => c.id === targetId)?.userId === "current-user";
-
-    if (isOwnContent) return;
-
+    // For testing purposes, we'll create notifications even for self-interactions
     const notification: Notification = {
       id: uuidv4(),
       userId: type === 'like' ? post.userId : post.comments.find(c => c.id === targetId)?.userId || '',
