@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Image as ImageIcon, Video, Send } from "lucide-react";
+import { Image as ImageIcon, Video, Send, Paperclip, ImageIcon as Image } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { Post } from "@/types/post";
@@ -87,43 +87,26 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
         <div className="flex gap-2 flex-wrap">
           <Button 
             variant="ghost" 
-            size="sm" 
-            className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2 flex-1 sm:flex-none"
-            onClick={() => document.getElementById('image-upload')?.click()}
+            size="icon"
+            className="text-gray-400 hover:scale-125 !p-0 rounded-full h-10 w-10"
+            onClick={() => document.getElementById('media-upload')?.click()}
           >
-            <ImageIcon className="w-5 h-5" />
-            Image
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2 flex-1 sm:flex-none"
-            onClick={() => document.getElementById('video-upload')?.click()}
-          >
-            <Video className="w-5 h-5" />
-            Video
+            <Image className="w-5 h-5" />
           </Button>
           <input
             type="file"
-            id="image-upload"
+            id="media-upload"
             className="hidden"
-            accept="image/*"
-            onChange={handleMediaUpload}
-          />
-          <input
-            type="file"
-            id="video-upload"
-            className="hidden"
-            accept="video/*"
+            accept="image/*,video/*"
             onChange={handleMediaUpload}
           />
         </div>
         <Button 
-          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white px-6 w-full sm:w-auto"
+          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white px-6 w-full sm:w-auto rounded-full !h-10 !w-10"
           onClick={handlePost}
           disabled={!newPost.trim() && !mediaFile}
         >
-          Post
+          <Send className="w-5 h-5" />
         </Button>
       </div>
     </Card>
