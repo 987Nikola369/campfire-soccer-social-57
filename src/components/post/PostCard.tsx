@@ -16,13 +16,17 @@ interface PostCardProps {
 const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
   const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
 
-  const createNotification = (type: 'like' | 'comment') => {
+  const createNotification = (type: 'like' | 'comment' | 'reply' | 'comment_like', targetId: string) => {
     // Only create notification if it's not a self-interaction
-    if (post.userId === "current-user") return;
+    const isOwnContent = type === 'like' ? 
+      post.userId === "current-user" : 
+      post.comments.find(c => c.id === targetId)?.userId === "current-user";
+
+    if (isOwnContent) return;
 
     const notification: Notification = {
       id: uuidv4(),
-      userId: post.userId,
+      userId: type === 'like' ? post.userId : post.comments.find(c => c.id === targetId)?.userId || '',
       type,
       postId: post.id,
       actorId: "current-user",
@@ -38,17 +42,73 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
   const handleLike = () => {
     onLike(post.id);
     if (!post.likes.includes("current-user")) {
-      createNotification('like');
+      createNotification('like', post.id);
     }
   };
 
   const handleComment = (postId: string, content: string) => {
     onComment(postId, content);
-    createNotification('comment');
+    createNotification('comment', postId);
+  };
+
+  const handleLikeComment = (commentId: string) => {
+    const updatedComments = post.comments.map(comment => {
+      if (comment.id === commentId) {
+        const hasLiked = comment.likes.includes("current-user");
+        const newLikes = hasLiked
+          ? comment.likes.filter(id => id !== "current-user")
+          : [...comment.likes, "current-user"];
+        
+        if (!hasLiked) {
+          createNotification('comment_like', commentId);
+        }
+        
+        return { ...comment, likes: newLikes };
+      }
+      return comment;
+    });
+
+    // Update localStorage
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const updatedPosts = posts.map((p: Post) =>
+      p.id === post.id ? { ...p, comments: updatedComments } : p
+    );
+    localStorage.setItem('posts', JSON.stringify(updatedPosts));
+  };
+
+  const handleReplyComment = (commentId: string, content: string) => {
+    if (!content.trim()) return;
+
+    const newReply = {
+      id: uuidv4(),
+      userId: "current-user",
+      userName: "Nikola",
+      content,
+      createdAt: new Date().toISOString(),
+      likes: []
+    };
+
+    const updatedComments = post.comments.map(comment => {
+      if (comment.id === commentId) {
+        createNotification('reply', commentId);
+        return {
+          ...comment,
+          replies: [newReply, ...comment.replies]
+        };
+      }
+      return comment;
+    });
+
+    // Update localStorage
+    const posts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const updatedPosts = posts.map((p: Post) =>
+      p.id === post.id ? { ...p, comments: updatedComments } : p
+    );
+    localStorage.setItem('posts', JSON.stringify(updatedPosts));
   };
 
   return (
-    <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none">
+    <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none animate-fade-in">
       <div className="flex items-center gap-3 mb-4">
         <Avatar>
           {avatarImage ? (
@@ -83,7 +143,7 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
         <Button 
           variant="ghost" 
           size="sm" 
-          className={`hover:bg-[#2a2d31] gap-2 ${
+          className={`hover:bg-[#2a2d31] gap-2 hover:scale-105 transition-transform ${
             post.likes.includes("current-user") ? "text-[#E41E12]" : ""
           }`}
           onClick={handleLike}
@@ -91,7 +151,11 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
           <Heart className="w-4 h-4" />
           {post.likes.length}
         </Button>
-        <Button variant="ghost" size="sm" className="hover:bg-[#2a2d31] gap-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="hover:bg-[#2a2d31] gap-2 hover:scale-105 transition-transform"
+        >
           <MessageSquare className="w-4 h-4" />
           {post.comments.length}
         </Button>
@@ -101,6 +165,8 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
         postId={post.id}
         comments={post.comments}
         onComment={handleComment}
+        onLikeComment={handleLikeComment}
+        onReplyComment={handleReplyComment}
       />
     </Card>
   );

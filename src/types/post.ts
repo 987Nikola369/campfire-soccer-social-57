@@ -32,7 +32,7 @@ export interface Reply {
 export interface Notification {
   id: string;
   userId: string;
-  type: 'like' | 'comment' | 'reply';
+  type: 'like' | 'comment' | 'reply' | 'comment_like';
   postId: string;
   actorId: string;
   actorName: string;
