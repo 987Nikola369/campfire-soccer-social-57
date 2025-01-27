@@ -17,7 +17,6 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
   const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
 
   const createNotification = (type: 'like' | 'comment' | 'reply' | 'comment_like', targetId: string) => {
-    // Only create notification if it's not a self-interaction
     const isOwnContent = type === 'like' ? 
       post.userId === "current-user" : 
       post.comments.find(c => c.id === targetId)?.userId === "current-user";
@@ -52,28 +51,31 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
   };
 
   const handleLikeComment = (commentId: string) => {
-    const updatedComments = post.comments.map(comment => {
-      if (comment.id === commentId) {
-        const hasLiked = comment.likes.includes("current-user");
-        const newLikes = hasLiked
-          ? comment.likes.filter(id => id !== "current-user")
-          : [...comment.likes, "current-user"];
-        
-        if (!hasLiked) {
-          createNotification('comment_like', commentId);
-        }
-        
-        return { ...comment, likes: newLikes };
-      }
-      return comment;
-    });
-
-    // Update localStorage
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    const updatedPosts = posts.map((p: Post) =>
-      p.id === post.id ? { ...p, comments: updatedComments } : p
-    );
+    const updatedPosts = posts.map((p: Post) => {
+      if (p.id === post.id) {
+        const updatedComments = p.comments.map(comment => {
+          if (comment.id === commentId) {
+            const hasLiked = comment.likes.includes("current-user");
+            const newLikes = hasLiked
+              ? comment.likes.filter(id => id !== "current-user")
+              : [...comment.likes, "current-user"];
+            
+            if (!hasLiked) {
+              createNotification('comment_like', commentId);
+            }
+            
+            return { ...comment, likes: newLikes };
+          }
+          return comment;
+        });
+        return { ...p, comments: updatedComments };
+      }
+      return p;
+    });
     localStorage.setItem('posts', JSON.stringify(updatedPosts));
+    // Force a re-render by updating the parent component
+    onComment(post.id, '');
   };
 
   const handleReplyComment = (commentId: string, content: string) => {
@@ -88,23 +90,26 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
       likes: []
     };
 
-    const updatedComments = post.comments.map(comment => {
-      if (comment.id === commentId) {
-        createNotification('reply', commentId);
-        return {
-          ...comment,
-          replies: [newReply, ...comment.replies]
-        };
-      }
-      return comment;
-    });
-
-    // Update localStorage
     const posts = JSON.parse(localStorage.getItem('posts') || '[]');
-    const updatedPosts = posts.map((p: Post) =>
-      p.id === post.id ? { ...p, comments: updatedComments } : p
-    );
+    const updatedPosts = posts.map((p: Post) => {
+      if (p.id === post.id) {
+        const updatedComments = p.comments.map(comment => {
+          if (comment.id === commentId) {
+            createNotification('reply', commentId);
+            return {
+              ...comment,
+              replies: [newReply, ...comment.replies]
+            };
+          }
+          return comment;
+        });
+        return { ...p, comments: updatedComments };
+      }
+      return p;
+    });
     localStorage.setItem('posts', JSON.stringify(updatedPosts));
+    // Force a re-render by updating the parent component
+    onComment(post.id, '');
   };
 
   return (

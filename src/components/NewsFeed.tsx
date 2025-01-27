@@ -6,7 +6,6 @@ import PostCard from "./post/PostCard";
 const NewsFeed = () => {
   const [posts, setPosts] = useState<Post[]>([]);
 
-  // Load posts from localStorage on component mount
   useEffect(() => {
     const savedPosts = localStorage.getItem('posts');
     if (savedPosts) {
@@ -14,7 +13,6 @@ const NewsFeed = () => {
     }
   }, []);
 
-  // Save posts to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('posts', JSON.stringify(posts));
   }, [posts]);
@@ -40,7 +38,14 @@ const NewsFeed = () => {
   };
 
   const handleComment = (postId: string, content: string) => {
-    if (!content.trim()) return;
+    if (!content.trim()) {
+      // If content is empty, just refresh the posts from localStorage
+      const savedPosts = localStorage.getItem('posts');
+      if (savedPosts) {
+        setPosts(JSON.parse(savedPosts));
+      }
+      return;
+    }
     
     setPosts(prev => prev.map(post => {
       if (post.id === postId) {
