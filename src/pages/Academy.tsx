@@ -4,48 +4,20 @@ import { User, UserRole } from "@/types/user";
 import PostCreationForm from "@/components/post/PostCreationForm";
 import PostCard from "@/components/post/PostCard";
 import { useToast } from "@/components/ui/use-toast";
-import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Academy = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
-    // Mock users data
-    const mockUsers: User[] = [
-      {
-        id: "1",
-        email: "keto@example.com",
-        userName: "Keto",
-        role: "standard",
-        joinDate: "2025-01-25"
-      },
-      {
-        id: "2",
-        email: "martin@example.com",
-        userName: "Martin",
-        role: "standard",
-        joinDate: "2025-01-25"
-      },
-      {
-        id: "3",
-        email: "nikola@example.com",
-        userName: "Nikola",
-        role: "super_user",
-        joinDate: "2025-01-25"
-      }
-    ];
-    setUsers(mockUsers);
-
     // For now, we'll simulate a logged-in user with a specific role
+    // This should be replaced with actual authentication later
     const mockUser: User = {
       id: "current-user",
       email: "user@example.com",
       userName: "Nikola",
-      role: "super_user" as UserRole,
+      role: "standard" as UserRole, // Change this to test different roles
       joinDate: new Date().toISOString()
     };
     setCurrentUser(mockUser);
@@ -162,30 +134,10 @@ const Academy = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none">
-        <h2 className="text-xl font-semibold mb-4 text-[#E41E12]">Users</h2>
-        <div className="flex flex-wrap gap-4">
-          {users.map((user) => (
-            <div key={user.id} className="flex items-center gap-2 bg-[#2a2d31] p-2 rounded-lg">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-[#3a3d41] text-white">
-                  {user.userName.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium text-white">{user.userName}</p>
-                <p className="text-xs text-gray-400">Member since {new Date(user.joinDate).toLocaleDateString()}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
-
+    <div className="space-y-4 py-4">
       {currentUser && canPost(currentUser.role) && (
         <PostCreationForm onPostCreated={handleNewPost} />
       )}
-      
       {posts.map((post) => (
         <PostCard
           key={post.id}
