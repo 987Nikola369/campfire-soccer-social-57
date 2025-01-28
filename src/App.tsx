@@ -5,8 +5,10 @@ import Routes from "./Routes";
 function App() {
   return (
     <AuthProvider>
-      <Routes />
-      <Toaster />
+      <div className="dark">
+        <Routes />
+        <Toaster />
+      </div>
     </AuthProvider>
   );
 }
