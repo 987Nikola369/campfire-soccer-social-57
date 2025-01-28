@@ -1,8 +1,8 @@
 import { Routes as RouterRoutes, Route } from "react-router-dom";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, Sidebar, SidebarContent, SidebarInset } from "@/components/ui/sidebar";
 import { Home, Users } from "lucide-react";
-import Index from "@/pages/Index";
 import Academy from "@/pages/Academy";
+import Index from "@/pages/Index";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Routes = () => {

@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Heart, MessageSquare, Reply } from "lucide-react";
 import { Notification } from "@/types/post";
+import { useNavigate } from "react-router-dom";
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedNotifications = localStorage.getItem('notifications');
@@ -42,6 +44,40 @@ const Notifications = () => {
     }
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    // Get all posts from both feeds
+    const communityPosts = JSON.parse(localStorage.getItem('posts') || '[]');
+    const academyPosts = JSON.parse(localStorage.getItem('academy_posts') || '[]');
+    const allPosts = [...communityPosts, ...academyPosts];
+    
+    // Find the relevant post
+    const post = allPosts.find(p => p.id === notification.postId);
+    
+    if (post) {
+      // Determine which feed the post belongs to
+      const isAcademyPost = academyPosts.some(p => p.id === post.id);
+      
+      // Navigate to the appropriate feed
+      navigate(isAcademyPost ? '/' : '/community');
+      
+      // Mark notification as read
+      const updatedNotifications = notifications.map(n => 
+        n.id === notification.id ? { ...n, read: true } : n
+      );
+      setNotifications(updatedNotifications);
+      localStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+      
+      // Scroll to the post (after a short delay to ensure the page has loaded)
+      setTimeout(() => {
+        const postElement = document.getElementById(`post-${post.id}`);
+        if (postElement) {
+          postElement.scrollIntoView({ behavior: 'smooth' });
+          postElement.classList.add('highlight-post');
+        }
+      }, 100);
+    }
+  };
+
   return (
     <div className="space-y-4 py-4 animate-fade-in">
       {notifications.length === 0 ? (
@@ -52,7 +88,8 @@ const Notifications = () => {
         notifications.map((notification) => (
           <Card 
             key={notification.id} 
-            className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none hover:bg-[#2a2d31] transition-colors animate-fade-in"
+            className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none hover:bg-[#2a2d31] transition-colors animate-fade-in cursor-pointer"
+            onClick={() => handleNotificationClick(notification)}
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[#2a2d31] flex items-center justify-center">

@@ -17,7 +17,6 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
   const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
 
   const createNotification = (type: 'like' | 'comment' | 'reply' | 'comment_like', targetId: string) => {
-    // For testing purposes, we'll create notifications even for self-interactions
     const notification: Notification = {
       id: uuidv4(),
       userId: type === 'like' ? post.userId : post.comments.find(c => c.id === targetId)?.userId || '',
@@ -69,7 +68,6 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
       return p;
     });
     localStorage.setItem('posts', JSON.stringify(updatedPosts));
-    // Force a re-render by updating the parent component
     onComment(post.id, '');
   };
 
@@ -103,12 +101,11 @@ const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
       return p;
     });
     localStorage.setItem('posts', JSON.stringify(updatedPosts));
-    // Force a re-render by updating the parent component
     onComment(post.id, '');
   };
 
   return (
-    <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none animate-fade-in">
+    <Card id={`post-${post.id}`} className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none animate-fade-in">
       <div className="flex items-center gap-3 mb-4">
         <Avatar>
           {avatarImage ? (
