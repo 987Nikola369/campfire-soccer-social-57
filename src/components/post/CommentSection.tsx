@@ -34,22 +34,22 @@ const CommentSection = ({
 
   return (
     <div className="mt-4 space-y-4 animate-fade-in">
-      <div className="flex gap-2 items-center">
+      <div className="flex gap-2 flex-col sm:flex-row">
         <Textarea
           placeholder="Write a comment..."
           className="bg-[#2a2d31] border-none text-gray-300 resize-none min-h-[40px] flex-1"
           id={`comment-${postId}`}
         />
         <Button
-          size="icon"
-          className="bg-[#E41E12] hover:bg-[#E41E12]/90 shrink-0 hover:scale-105 transition-transform rounded-full !h-10 !w-10 !p-0"
+          size="sm"
+          className="bg-[#E41E12] hover:bg-[#E41E12]/90 w-full sm:w-auto hover:scale-105 transition-transform"
           onClick={() => {
             const textarea = document.getElementById(`comment-${postId}`) as HTMLTextAreaElement;
             onComment(postId, textarea.value);
             textarea.value = '';
           }}
         >
-          <Send className="w-5 h-5" />
+          <Send className="w-4 h-4" />
         </Button>
       </div>
       
@@ -103,11 +103,11 @@ const CommentSection = ({
                 id={`reply-${comment.id}`}
               />
               <Button
-                size="icon"
-                className="bg-[#E41E12] hover:bg-[#E41E12]/90 hover:scale-105 transition-transform rounded-full !h-10 !w-10 !p-0"
+                size="sm"
+                className="bg-[#E41E12] hover:bg-[#E41E12]/90 hover:scale-105 transition-transform"
                 onClick={() => handleReplySubmit(comment.id)}
               >
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4" />
               </Button>
             </div>
           )}

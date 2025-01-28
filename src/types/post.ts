@@ -1,16 +1,16 @@
-export type Post = {
+export interface Post {
   id: string;
   userId: string;
   userName: string;
   content: string;
-  createdAt: string;
-  likes: string[];
-  comments: Comment[];
   mediaUrl?: string;
   mediaType?: 'image' | 'video';
-};
+  createdAt: string;
+  likes: string[]; // Array of userIds
+  comments: Comment[];
+}
 
-export type Comment = {
+export interface Comment {
   id: string;
   userId: string;
   userName: string;
@@ -18,28 +18,21 @@ export type Comment = {
   createdAt: string;
   likes: string[];
   replies: Reply[];
-};
+}
 
-export type Reply = {
+export interface Reply {
   id: string;
   userId: string;
   userName: string;
   content: string;
   createdAt: string;
   likes: string[];
-};
-
-export type NotificationType = 
-  | 'like' 
-  | 'comment' 
-  | 'reply' 
-  | 'comment_like'
-  | 'academy_post';
+}
 
 export interface Notification {
   id: string;
   userId: string;
-  type: NotificationType;
+  type: 'like' | 'comment' | 'reply' | 'comment_like';
   postId: string;
   actorId: string;
   actorName: string;

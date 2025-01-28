@@ -2,22 +2,16 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import AuthForm from "@/components/AuthForm";
 import NewsFeed from "@/components/NewsFeed";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
-  const { isAuthenticated, setUser } = useAuth();
-  
+  // Using localStorage to persist authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("isAuthenticated") === "true" || false;
+  });
+
   const handleLogin = () => {
-    // When user logs in, we'll set their role
-    const loggedInUser = {
-      id: "current-user",
-      email: "nikola@example.com",
-      userName: "Nikola",
-      role: "super_user" as const,
-      joinDate: new Date().toISOString(),
-    };
-    setUser(loggedInUser);
-    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+    setIsAuthenticated(true);
+    localStorage.setItem("isAuthenticated", "true");
   };
 
   if (!isAuthenticated) {

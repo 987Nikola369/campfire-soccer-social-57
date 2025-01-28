@@ -1,150 +1,63 @@
 import { useState, useEffect } from "react";
-import { Post } from "@/types/post";
-import { User, UserRole } from "@/types/user";
-import PostCreationForm from "@/components/post/PostCreationForm";
-import PostCard from "@/components/post/PostCard";
-import { useToast } from "@/components/ui/use-toast";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+interface AcademyPost {
+  id: string;
+  content: string;
+  imageUrl: string;
+  createdAt: string;
+}
 
 const Academy = () => {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // For now, we'll simulate a logged-in user with a specific role
-    // This should be replaced with actual authentication later
-    const mockUser: User = {
-      id: "current-user",
-      email: "user@example.com",
-      userName: "Nikola",
-      role: "standard" as UserRole, // Change this to test different roles
-      joinDate: new Date().toISOString()
-    };
-    setCurrentUser(mockUser);
-
-    // Load existing posts
-    const savedPosts = localStorage.getItem('academy_posts');
-    if (savedPosts) {
-      setPosts(JSON.parse(savedPosts));
-    } else {
-      // Initialize with sample posts if none exist
-      const samplePosts: Post[] = [
-        {
-          id: "1",
-          userId: "academy",
-          userName: "Academy Staff",
-          content: "Welcome to our new training facility! We're excited to announce the opening of our state-of-the-art indoor training center.",
-          createdAt: new Date().toISOString(),
-          likes: [],
-          comments: [],
-          mediaUrl: "/lovable-uploads/1c1d9558-65a2-46c7-95bb-c69e831d91a7.png",
-          mediaType: "image"
-        },
-        {
-          id: "2",
-          userId: "academy",
-          userName: "Academy Staff",
-          content: "Congratulations to our U17 team for winning the regional championship! Your dedication and hard work paid off.",
-          createdAt: new Date().toISOString(),
-          likes: [],
-          comments: [],
-          mediaUrl: "/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png",
-          mediaType: "image"
-        }
-      ];
-      setPosts(samplePosts);
-      localStorage.setItem('academy_posts', JSON.stringify(samplePosts));
+  const [posts] = useState<AcademyPost[]>([
+    {
+      id: "1",
+      content: "Join us for our annual summer camp! This year we're focusing on developing technical skills and tactical understanding. Perfect for young players aged 8-16 who want to take their game to the next level.",
+      imageUrl: "/lovable-uploads/photo-1517022812141-23620dba5c23.png",
+      createdAt: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+    },
+    {
+      id: "2",
+      content: "Celebrating teamwork and unity! Our academy's philosophy is built on the foundation that success comes through collaboration. Just like these animals moving as one, our players learn to think and act as a team.",
+      imageUrl: "/lovable-uploads/photo-1466721591366-2d5fba72006d.png",
+      createdAt: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+    },
+    {
+      id: "3",
+      content: "The importance of coordination and precision in football cannot be overstated. Like these bees working in perfect harmony, our training sessions focus on developing these crucial skills.",
+      imageUrl: "/lovable-uploads/photo-1498936178812-4b2e558d2937.png",
+      createdAt: new Date(Date.now() - 259200000).toISOString() // 3 days ago
     }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('academy_posts', JSON.stringify(posts));
-  }, [posts]);
-
-  const canPost = (role: UserRole): boolean => {
-    return role === 'coach' || role === 'super_user';
-  };
-
-  const handleNewPost = (newPost: Post) => {
-    if (!currentUser || !canPost(currentUser.role)) {
-      toast({
-        title: "Permission Denied",
-        description: "Only coaches and administrators can post in the Academy Feed.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Create notification for super_user posts
-    if (currentUser.role === 'super_user') {
-      const notification = {
-        id: crypto.randomUUID(),
-        userId: "all",
-        type: "academy_post",
-        postId: newPost.id,
-        actorId: currentUser.id,
-        actorName: currentUser.userName,
-        read: false,
-        createdAt: new Date().toISOString()
-      };
-      
-      const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
-      localStorage.setItem('notifications', JSON.stringify([notification, ...notifications]));
-    }
-
-    setPosts(prev => [newPost, ...prev]);
-  };
-
-  const handleLike = (postId: string) => {
-    setPosts(prev => prev.map(post => {
-      if (post.id === postId) {
-        const userId = "current-user";
-        const hasLiked = post.likes.includes(userId);
-        return {
-          ...post,
-          likes: hasLiked 
-            ? post.likes.filter(id => id !== userId)
-            : [...post.likes, userId]
-        };
-      }
-      return post;
-    }));
-  };
-
-  const handleComment = (postId: string, content: string) => {
-    setPosts(prev => prev.map(post => {
-      if (post.id === postId) {
-        const newComment = {
-          id: crypto.randomUUID(),
-          userId: "current-user",
-          userName: currentUser?.userName || "Anonymous",
-          content,
-          createdAt: new Date().toISOString(),
-          likes: [],
-          replies: []
-        };
-        
-        return {
-          ...post,
-          comments: [newComment, ...post.comments]
-        };
-      }
-      return post;
-    }));
-  };
+  ]);
 
   return (
-    <div className="space-y-4 py-4">
-      {currentUser && canPost(currentUser.role) && (
-        <PostCreationForm onPostCreated={handleNewPost} />
-      )}
+    <div className="space-y-4 py-4 animate-fade-in">
+      <h1 className="text-2xl font-bold text-white mb-6">Academy Updates</h1>
       {posts.map((post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          onLike={handleLike}
-          onComment={handleComment}
-        />
+        <Card key={post.id} className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none animate-fade-in">
+          <div className="flex items-center gap-3 mb-4">
+            <Avatar>
+              <AvatarFallback className="bg-[#2a2d31] text-white">
+                AC
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <h3 className="font-semibold text-white">Academy Staff</h3>
+              <p className="text-sm text-gray-400">
+                {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+          
+          <p className="mb-4 text-gray-200 break-words">{post.content}</p>
+          
+          <img 
+            src={post.imageUrl} 
+            alt="Academy post" 
+            className="w-full max-h-96 object-cover rounded-lg"
+          />
+        </Card>
       ))}
     </div>
   );
