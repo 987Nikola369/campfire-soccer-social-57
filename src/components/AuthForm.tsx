@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/lib/auth";
 import { Mail } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,6 +12,7 @@ const AuthForm = () => {
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const { signIn, signUp } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent, mode: "login" | "register") => {
     e.preventDefault();
@@ -22,6 +24,12 @@ const AuthForm = () => {
       } else {
         await signUp(email, password, username);
       }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     } finally {
       setIsLoading(false);
     }
