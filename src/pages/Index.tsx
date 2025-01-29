@@ -7,14 +7,22 @@ const Index = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-5rem)]">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-[#E41E12]" />
+      </div>
+    );
   }
 
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#231F20] p-4">
         <Card className="w-full max-w-md p-6 animate-fade-in bg-black/30 backdrop-blur-lg border-none shadow-xl">
-          <h1 className="text-3xl font-bold text-white mb-6 text-center">Soccer Camp Social</h1>
+          <img 
+            src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" 
+            alt="Logo" 
+            className="h-12 mx-auto mb-6"
+          />
           <AuthForm />
         </Card>
       </div>
