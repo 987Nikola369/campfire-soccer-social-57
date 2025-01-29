@@ -16,8 +16,8 @@ const Index = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#231F20] p-4">
-        <Card className="w-full max-w-md p-6 animate-fade-in bg-black/30 backdrop-blur-lg border-none shadow-xl">
+      <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4">
+        <Card className="w-full max-w-md p-6 animate-fade-in bg-[#1a1d21]/90 backdrop-blur-lg border-none">
           <img 
             src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" 
             alt="Logo" 

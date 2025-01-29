@@ -25,10 +25,11 @@ const AuthForm = () => {
         await signUp(email, password, username);
       }
     } catch (error: any) {
+      console.error('Auth error:', error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message,
+        title: "Authentication Error",
+        description: error.message || "An error occurred during authentication",
       });
     } finally {
       setIsLoading(false);
@@ -50,6 +51,7 @@ const AuthForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="bg-white/10"
+            required
           />
           <Input
             type="password"
@@ -57,6 +59,7 @@ const AuthForm = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="bg-white/10"
+            required
           />
           <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80" disabled={isLoading}>
             {isLoading ? "Loading..." : "Login"}
@@ -72,6 +75,7 @@ const AuthForm = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="bg-white/10"
+            required
           />
           <Input
             type="email"
@@ -79,6 +83,7 @@ const AuthForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="bg-white/10"
+            required
           />
           <Input
             type="password"
@@ -86,6 +91,8 @@ const AuthForm = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="bg-white/10"
+            required
+            minLength={6}
           />
           <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80" disabled={isLoading}>
             {isLoading ? "Loading..." : "Register"}
