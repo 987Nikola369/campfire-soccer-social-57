@@ -2,28 +2,29 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/lib/auth";
+import { Mail } from "lucide-react";
 
-interface AuthFormProps {
-  onSuccess: () => void;
-}
-
-const AuthForm = ({ onSuccess }: AuthFormProps) => {
-  const { toast } = useToast();
+const AuthForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+  const { signIn, signUp } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, mode: "login" | "register") => {
     e.preventDefault();
     setIsLoading(true);
-    // TODO: Implement actual authentication
-    setTimeout(() => {
+    
+    try {
+      if (mode === "login") {
+        await signIn(email, password);
+      } else {
+        await signUp(email, password, username);
+      }
+    } finally {
       setIsLoading(false);
-      onSuccess();
-      toast({
-        title: "Welcome!",
-        description: "You have successfully logged in.",
-      });
-    }, 1000);
+    }
   };
 
   return (
@@ -33,32 +34,63 @@ const AuthForm = ({ onSuccess }: AuthFormProps) => {
         <TabsTrigger value="register">Register</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="login" className="animate-fade-in">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input type="email" placeholder="Email" className="bg-white/10" />
-          <Input type="password" placeholder="Password" className="bg-white/10" />
+      <TabsContent value="login">
+        <form onSubmit={(e) => handleSubmit(e, "login")} className="space-y-4">
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-white/10"
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="bg-white/10"
+          />
           <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80" disabled={isLoading}>
             {isLoading ? "Loading..." : "Login"}
-          </Button>
-          <Button type="button" variant="outline" className="w-full mt-2 hover:bg-white/10">
-            Continue with Google
           </Button>
         </form>
       </TabsContent>
 
-      <TabsContent value="register" className="animate-fade-in">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input type="text" placeholder="Full Name" className="bg-white/10" />
-          <Input type="email" placeholder="Email" className="bg-white/10" />
-          <Input type="password" placeholder="Password" className="bg-white/10" />
+      <TabsContent value="register">
+        <form onSubmit={(e) => handleSubmit(e, "register")} className="space-y-4">
+          <Input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="bg-white/10"
+          />
+          <Input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="bg-white/10"
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="bg-white/10"
+          />
           <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80" disabled={isLoading}>
             {isLoading ? "Loading..." : "Register"}
           </Button>
-          <Button type="button" variant="outline" className="w-full mt-2 hover:bg-white/10">
-            Continue with Google
-          </Button>
         </form>
       </TabsContent>
+
+      <div className="mt-6">
+        <Button variant="outline" className="w-full hover:bg-white/10" disabled={isLoading}>
+          <Mail className="mr-2 h-4 w-4" />
+          Continue with Google
+        </Button>
+      </div>
     </Tabs>
   );
 };
