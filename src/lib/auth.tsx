@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      if (session?.user) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
+      if (session?.user) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
@@ -68,23 +68,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         password,
         options: {
           data: {
-            username,
+            username: username,
           },
         },
       });
 
       if (error) throw error;
-
-      // Fetch the profile data to ensure it was created
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.user?.id)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-      }
 
       toast({
         title: "Success!",
@@ -110,6 +99,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       if (error) throw error;
+
+      // Fetch the user's profile after successful sign in
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+      } else if (profileData) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email!,
+          username: profileData.username
+        });
+      }
 
       toast({
         title: "Welcome back!",
