@@ -22,6 +22,9 @@ const AuthForm = () => {
       if (mode === "login") {
         await signIn(email, password);
       } else {
+        if (!username) {
+          throw new Error("Username is required");
+        }
         await signUp(email, password, username);
       }
     } catch (error: any) {

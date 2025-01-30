@@ -34,23 +34,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check active sessions and sets the user
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
+          username: session.user.user_metadata.username
         });
       }
       setLoading(false);
     });
 
-    // Listen for changes on auth state (logged in, signed out, etc.)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
         setUser({
           id: session.user.id,
           email: session.user.email!,
+          username: session.user.user_metadata.username
         });
       } else {
         setUser(null);
@@ -87,6 +87,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Error",
         description: error.message,
       });
+      throw error;
     }
   };
 
@@ -110,6 +111,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Error",
         description: error.message,
       });
+      throw error;
     }
   };
 
