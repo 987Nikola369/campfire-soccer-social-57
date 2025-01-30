@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    // Check active session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         const profile = await fetchProfile(session.user.id);
@@ -60,7 +61,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(false);
     });
 
+    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session);
       if (session?.user) {
         const profile = await fetchProfile(session.user.id);
         setUser({
@@ -145,13 +148,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+
+      // Clear the user state
+      setUser(null);
       
-      setUser(null); // Explicitly set user to null
-      navigate("/");
+      // Clear any stored auth data
+      localStorage.removeItem('sb-ailtlhvxukhoyjbpefjt-auth-token');
       
       toast({
         title: "Logged out successfully",
       });
+
+      // Navigate after state is cleared
+      navigate("/");
     } catch (error: any) {
       toast({
         variant: "destructive",
