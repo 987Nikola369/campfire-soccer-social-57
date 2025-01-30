@@ -33,13 +33,28 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const fetchProfile = async (userId: string) => {
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+    return profile;
+  };
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
+        const profile = await fetchProfile(session.user.id);
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          username: session.user.user_metadata.username
+          username: profile?.username
         });
       }
       setLoading(false);
@@ -47,10 +62,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
+        const profile = await fetchProfile(session.user.id);
         setUser({
           id: session.user.id,
           email: session.user.email!,
-          username: session.user.user_metadata.username
+          username: profile?.username
         });
       } else {
         setUser(null);
@@ -100,20 +116,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) throw error;
 
-      // Fetch the user's profile after successful sign in
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('username')
-        .eq('id', data.user.id)
-        .single();
-
-      if (profileError) {
-        console.error('Error fetching profile:', profileError);
-      } else if (profileData) {
+      const profile = await fetchProfile(data.user.id);
+      
+      if (profile) {
         setUser({
           id: data.user.id,
           email: data.user.email!,
-          username: profileData.username
+          username: profile.username
         });
       }
 
