@@ -146,7 +146,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
+      setUser(null); // Explicitly set user to null
       navigate("/");
+      
+      toast({
+        title: "Logged out successfully",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
