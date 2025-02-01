@@ -62,15 +62,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         console.log("Initial session check:", session);
-        await updateUserState(session);
+        if (mounted) {
+          await updateUserState(session);
+          setLoading(false);
+        }
       } catch (error) {
         console.error("Error during session initialization:", error);
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -78,17 +84,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
+      if (!mounted) return;
+
       if (event === 'SIGNED_OUT') {
         setUser(null);
         localStorage.clear();
-        navigate('/', { replace: true });
+        window.location.href = '/';
       } else {
         await updateUserState(session);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [navigate]);
@@ -160,22 +169,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       console.log("Starting signOut process");
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      console.log("Successfully signed out from Supabase");
       
-      // Clear all auth-related data
+      // First, clear the local state
       setUser(null);
       localStorage.clear();
       
-      console.log("Cleared local storage and user state");
+      // Then sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
 
-      toast({
-        title: "Logged out successfully",
-      });
-
-      // Force navigation to home page
+      console.log("Successfully signed out");
+      
+      // Force a full page reload to clear any remaining state
       window.location.href = '/';
     } catch (error: any) {
       console.error("Error during sign out:", error);
@@ -184,6 +189,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Error",
         description: error.message,
       });
+      // Even if there's an error, redirect to home
+      window.location.href = '/';
     }
   };
 
