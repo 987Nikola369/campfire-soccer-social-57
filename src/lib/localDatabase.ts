@@ -12,6 +12,13 @@ interface QueryBuilder<T> {
   execute: () => Promise<{ data: T[]; error: Error | null }>;
 }
 
+interface AuthChangeEvent {
+  detail: {
+    event: string;
+    session: any;
+  }
+}
+
 class LocalDatabase {
   private storage: { [key in Table]: any[] } = {
     profiles: [],
@@ -65,16 +72,11 @@ class LocalDatabase {
       single: async () => {
         try {
           let result = [...this.storage[table]] as T[];
-          
-          // Apply filters
           filters.forEach(filter => {
             result = result.filter(filter);
           });
-
-          // Get first item
           const item = result[0] || null;
-
-          // Select specific columns if specified
+          
           if (selectedColumns.length > 0 && item) {
             const filtered = {} as T;
             selectedColumns.forEach(col => {
@@ -82,7 +84,6 @@ class LocalDatabase {
             });
             return { data: filtered, error: null };
           }
-
           return { data: item, error: null };
         } catch (error) {
           return { data: null, error: error as Error };
@@ -91,13 +92,10 @@ class LocalDatabase {
       execute: async () => {
         try {
           let result = [...this.storage[table]] as T[];
-          
-          // Apply filters
           filters.forEach(filter => {
             result = result.filter(filter);
           });
 
-          // Apply ordering
           if (orderColumn) {
             result.sort((a, b) => {
               const aVal = a[orderColumn];
@@ -108,7 +106,6 @@ class LocalDatabase {
             });
           }
 
-          // Select specific columns if specified
           if (selectedColumns.length > 0) {
             result = result.map(item => {
               const filtered = {} as T;
@@ -201,14 +198,16 @@ export const auth = {
     return { data: { session: session ? JSON.parse(session) : null } };
   },
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    // Simple event listener setup
-    window.addEventListener('local-auth-change', (e: any) => {
+    const handler = (e: CustomEvent<AuthChangeEvent>) => {
       callback(e.detail.event, e.detail.session);
-    });
+    };
+    
+    window.addEventListener('local-auth-change' as any, handler as EventListener);
+    
     return {
       subscription: {
         unsubscribe: () => {
-          window.removeEventListener('local-auth-change', callback);
+          window.removeEventListener('local-auth-change' as any, handler as EventListener);
         }
       }
     };

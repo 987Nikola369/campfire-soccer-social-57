@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser({
         id: session.user.id,
         email: session.user.email!,
-        username: profile?.username
+        username: profile?.username || session.user.user_metadata?.username
       });
     } else {
       setUser(null);
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
       if (!mounted) return;
 
