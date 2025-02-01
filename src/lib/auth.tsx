@@ -15,6 +15,8 @@ type Profile = {
   [key: string]: any;
 };
 
+type Table = 'profiles' | 'posts' | 'comments' | 'likes' | 'notifications' | 'messages' | 'chat_rooms' | 'chat_room_members';
+
 type AuthContextType = {
   user: AuthUser | null;
   loading: boolean;
@@ -41,7 +43,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     const { data: profile, error } = await supabase
-      .from('profiles')
+      .from('profiles' as Table)
       .select('username')
       .eq('id', userId)
       .single();
