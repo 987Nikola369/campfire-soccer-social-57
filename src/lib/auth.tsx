@@ -9,6 +9,11 @@ export type AuthUser = {
   username?: string;
 };
 
+type Profile = {
+  username: string;
+  [key: string]: any;
+};
+
 type AuthContextType = {
   user: AuthUser | null;
   loading: boolean;
@@ -44,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Error fetching profile:', error);
       return null;
     }
-    return profile;
+    return profile as Profile;
   };
 
   const updateUserState = async (session: any) => {
@@ -170,17 +175,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log("Starting signOut process");
       
-      // First, clear the local state
       setUser(null);
       localStorage.clear();
       
-      // Then sign out from Supabase
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
       console.log("Successfully signed out");
       
-      // Force a full page reload to clear any remaining state
       window.location.href = '/';
     } catch (error: any) {
       console.error("Error during sign out:", error);
@@ -189,7 +191,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Error",
         description: error.message,
       });
-      // Even if there's an error, redirect to home
       window.location.href = '/';
     }
   };

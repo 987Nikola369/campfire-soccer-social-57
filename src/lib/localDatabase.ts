@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 
-// Type definitions to match Supabase structure
 type Table = 'profiles' | 'posts' | 'comments' | 'likes' | 'notifications' | 'messages' | 'chat_rooms' | 'chat_room_members';
 
 interface QueryBuilder<T> {
@@ -12,7 +11,7 @@ interface QueryBuilder<T> {
   execute: () => Promise<{ data: T[]; error: Error | null }>;
 }
 
-interface AuthChangeEvent {
+interface AuthChangeEvent extends CustomEvent {
   detail: {
     event: string;
     session: any;
@@ -198,7 +197,7 @@ export const auth = {
     return { data: { session: session ? JSON.parse(session) : null } };
   },
   onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    const handler = (e: CustomEvent<AuthChangeEvent>) => {
+    const handler = (e: AuthChangeEvent) => {
       callback(e.detail.event, e.detail.session);
     };
     
@@ -235,6 +234,18 @@ export const auth = {
       detail: { event: 'SIGNED_OUT', session: null }
     }));
     return { error: null };
+  },
+  signUp: async ({ email, password, options }: { email: string; password: string; options?: { data?: any } }) => {
+    const mockUser = {
+      id: uuidv4(),
+      email,
+      user_metadata: options?.data || { username: email.split('@')[0] }
+    };
+    const mockSession = {
+      user: mockUser,
+      access_token: 'mock_token'
+    };
+    return { data: { user: mockUser, session: mockSession }, error: null };
   }
 };
 
