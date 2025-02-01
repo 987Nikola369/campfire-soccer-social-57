@@ -186,11 +186,74 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message_id: string | null
+          post_id: string | null
+          read: boolean | null
+          sender_id: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          post_id?: string | null
+          read?: boolean | null
+          sender_id: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message_id?: string | null
+          post_id?: string | null
+          read?: boolean | null
+          sender_id?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       posts: {
         Row: {
           content: string
           created_at: string | null
           id: string
+          is_academy_post: boolean | null
           is_approved: boolean | null
           media_url: string | null
           updated_at: string | null
@@ -200,6 +263,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          is_academy_post?: boolean | null
           is_approved?: boolean | null
           media_url?: string | null
           updated_at?: string | null
@@ -209,6 +273,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          is_academy_post?: boolean | null
           is_approved?: boolean | null
           media_url?: string | null
           updated_at?: string | null
@@ -232,7 +297,9 @@ export type Database = {
           full_name: string | null
           id: string
           is_parent: boolean | null
+          name: string | null
           position: string | null
+          role: string | null
           team: string | null
           updated_at: string | null
           username: string
@@ -244,7 +311,9 @@ export type Database = {
           full_name?: string | null
           id: string
           is_parent?: boolean | null
+          name?: string | null
           position?: string | null
+          role?: string | null
           team?: string | null
           updated_at?: string | null
           username: string
@@ -256,7 +325,9 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_parent?: boolean | null
+          name?: string | null
           position?: string | null
+          role?: string | null
           team?: string | null
           updated_at?: string | null
           username?: string

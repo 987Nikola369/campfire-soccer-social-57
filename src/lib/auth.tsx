@@ -47,37 +47,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return profile;
   };
 
+  const updateUserState = async (session: any) => {
+    if (session?.user) {
+      const profile = await fetchProfile(session.user.id);
+      setUser({
+        id: session.user.id,
+        email: session.user.email!,
+        username: profile?.username
+      });
+    } else {
+      setUser(null);
+    }
+  };
+
   useEffect(() => {
-    // Check active session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const profile = await fetchProfile(session.user.id);
-        setUser({
-          id: session.user.id,
-          email: session.user.email!,
-          username: profile?.username
-        });
-      }
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      updateUserState(session);
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
-      if (session?.user) {
-        const profile = await fetchProfile(session.user.id);
-        setUser({
-          id: session.user.id,
-          email: session.user.email!,
-          username: profile?.username
-        });
-      } else {
-        setUser(null);
-      }
+      await updateUserState(session);
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, username: string) => {
@@ -146,21 +145,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      // Clear the user state
+      await supabase.auth.signOut();
+      
+      // Clear all auth-related data
       setUser(null);
+      localStorage.clear(); // Clear all localStorage data
       
-      // Clear any stored auth data
-      localStorage.removeItem('sb-ailtlhvxukhoyjbpefjt-auth-token');
-      
+      // Show success message
       toast({
         title: "Logged out successfully",
       });
 
-      // Navigate after state is cleared
-      navigate("/");
+      // Navigate to home page
+      navigate("/", { replace: true });
     } catch (error: any) {
       toast({
         variant: "destructive",
