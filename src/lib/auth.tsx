@@ -48,6 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const updateUserState = async (session: any) => {
+    console.log("Updating user state with session:", session);
     if (session?.user) {
       const profile = await fetchProfile(session.user.id);
       setUser({
@@ -61,23 +62,36 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // Initial session check
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      updateUserState(session);
-      setLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Initial session check:", session);
+        await updateUserState(session);
+      } catch (error) {
+        console.error("Error during session initialization:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Listen for auth changes
+    initializeAuth();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session);
-      await updateUserState(session);
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        localStorage.clear();
+        navigate('/', { replace: true });
+      } else {
+        await updateUserState(session);
+      }
       setLoading(false);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
@@ -145,20 +159,26 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      console.log("Starting signOut process");
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      console.log("Successfully signed out from Supabase");
       
       // Clear all auth-related data
       setUser(null);
-      localStorage.clear(); // Clear all localStorage data
+      localStorage.clear();
       
-      // Show success message
+      console.log("Cleared local storage and user state");
+
       toast({
         title: "Logged out successfully",
       });
 
-      // Navigate to home page
-      navigate("/", { replace: true });
+      // Force navigation to home page
+      window.location.href = '/';
     } catch (error: any) {
+      console.error("Error during sign out:", error);
       toast({
         variant: "destructive",
         title: "Error",
