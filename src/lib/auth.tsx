@@ -10,6 +10,7 @@ export type AuthUser = {
 };
 
 type Profile = {
+  id: string;
   username: string;
   [key: string]: any;
 };
@@ -38,7 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     const { data: profile, error } = await supabase
       .from('profiles')
       .select('username')
