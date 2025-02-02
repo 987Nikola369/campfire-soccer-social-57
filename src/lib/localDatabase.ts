@@ -1,256 +1,315 @@
+import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
+import { AuthUser } from './auth';
+import { Post, Comment, Reply, Notification } from '@/types/post';
 
-type Table = 'profiles' | 'posts' | 'comments' | 'likes' | 'notifications' | 'messages' | 'chat_rooms' | 'chat_room_members';
-
-interface QueryBuilder<T> {
-  eq: (column: keyof T, value: any) => QueryBuilder<T>;
-  neq: (column: keyof T, value: any) => QueryBuilder<T>;
-  select: (columns: string) => QueryBuilder<T>;
-  order: (column: keyof T, options: { ascending?: boolean }) => QueryBuilder<T>;
-  single: () => Promise<{ data: T | null; error: Error | null }>;
-  execute: () => Promise<{ data: T[]; error: Error | null }>;
+interface Profile {
+  id: string;
+  username: string;
+  full_name?: string;
+  avatar_url?: string;
+  age?: number;
+  team?: string;
+  position?: string;
+  is_parent?: boolean;
+  created_at: string;
+  updated_at: string;
+  role?: 'user' | 'coach' | 'super_user';
 }
 
-interface AuthChangeEvent extends CustomEvent {
-  detail: {
-    event: string;
-    session: any;
-  }
+interface ChatRoom {
+  id: string;
+  name: string;
+  is_group?: boolean;
+  created_at: string;
 }
 
-class LocalDatabase {
-  private storage: { [key in Table]: any[] } = {
-    profiles: [],
-    posts: [],
-    comments: [],
-    likes: [],
-    notifications: [],
-    messages: [],
-    chat_rooms: [],
-    chat_room_members: []
-  };
+interface ChatRoomMember {
+  room_id: string;
+  user_id: string;
+  joined_at: string;
+}
 
-  constructor() {
-    // Load initial data from localStorage
-    Object.keys(this.storage).forEach((table) => {
-      const data = localStorage.getItem(`local_${table}`);
-      if (data) {
-        this.storage[table as Table] = JSON.parse(data);
-      }
-    });
-  }
+interface Message {
+  id: string;
+  room_id?: string;
+  sender_id?: string;
+  content: string;
+  media_url?: string;
+  created_at: string;
+  read_at?: string;
+}
 
-  private saveToStorage(table: Table) {
-    localStorage.setItem(`local_${table}`, JSON.stringify(this.storage[table]));
-  }
+interface LocalDatabaseState {
+  currentUser: AuthUser | null;
+  profiles: Profile[];
+  posts: Post[];
+  comments: Comment[];
+  likes: { id: string; post_id: string; user_id: string; created_at: string; }[];
+  notifications: Notification[];
+  chatRooms: ChatRoom[];
+  chatRoomMembers: ChatRoomMember[];
+  messages: Message[];
+  mediaFiles: { [key: string]: string }; // Store base64 strings
 
-  from<T>(table: Table): QueryBuilder<T> {
-    let filters: Array<(item: T) => boolean> = [];
-    let selectedColumns: string[] = [];
-    let orderColumn: keyof T | null = null;
-    let ascending = true;
+  // Auth operations
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, username: string) => Promise<void>;
+  signOut: () => Promise<void>;
 
-    const builder: QueryBuilder<T> = {
-      eq: (column, value) => {
-        filters.push((item: T) => item[column] === value);
-        return builder;
-      },
-      neq: (column, value) => {
-        filters.push((item: T) => item[column] !== value);
-        return builder;
-      },
-      select: (columns) => {
-        selectedColumns = columns.split(',').map(c => c.trim());
-        return builder;
-      },
-      order: (column, options = {}) => {
-        orderColumn = column;
-        ascending = options.ascending ?? true;
-        return builder;
-      },
-      single: async () => {
-        try {
-          let result = [...this.storage[table]] as T[];
-          filters.forEach(filter => {
-            result = result.filter(filter);
-          });
-          const item = result[0] || null;
-          
-          if (selectedColumns.length > 0 && item) {
-            const filtered = {} as T;
-            selectedColumns.forEach(col => {
-              filtered[col as keyof T] = item[col as keyof T];
-            });
-            return { data: filtered, error: null };
-          }
-          return { data: item, error: null };
-        } catch (error) {
-          return { data: null, error: error as Error };
-        }
-      },
-      execute: async () => {
-        try {
-          let result = [...this.storage[table]] as T[];
-          filters.forEach(filter => {
-            result = result.filter(filter);
-          });
+  // Profile operations
+  getProfile: (userId: string) => Promise<Profile | null>;
+  updateProfile: (userId: string, updates: Partial<Profile>) => Promise<void>;
 
-          if (orderColumn) {
-            result.sort((a, b) => {
-              const aVal = a[orderColumn];
-              const bVal = b[orderColumn];
-              return ascending ? 
-                (aVal < bVal ? -1 : 1) :
-                (aVal > bVal ? -1 : 1);
-            });
-          }
+  // Post operations
+  createPost: (post: Omit<Post, 'id' | 'createdAt'>) => Promise<Post>;
+  getPosts: () => Promise<Post[]>;
+  updatePost: (id: string, updates: Partial<Post>) => Promise<void>;
+  deletePost: (id: string) => Promise<void>;
 
-          if (selectedColumns.length > 0) {
-            result = result.map(item => {
-              const filtered = {} as T;
-              selectedColumns.forEach(col => {
-                filtered[col as keyof T] = item[col as keyof T];
-              });
-              return filtered;
-            });
-          }
+  // Comment operations
+  addComment: (postId: string, content: string, userId: string) => Promise<void>;
+  deleteComment: (commentId: string) => Promise<void>;
 
-          return { data: result, error: null };
-        } catch (error) {
-          return { data: [], error: error as Error };
-        }
-      }
+  // Like operations
+  toggleLike: (postId: string, userId: string) => Promise<void>;
+
+  // Chat operations
+  createChatRoom: (name: string, members: string[]) => Promise<string>;
+  sendMessage: (roomId: string, content: string, senderId: string, mediaUrl?: string) => Promise<void>;
+  getMessages: (roomId: string) => Promise<Message[]>;
+
+  // Media operations
+  uploadMedia: (file: File) => Promise<string>;
+}
+
+const useLocalDatabase = create<LocalDatabaseState>((set, get) => ({
+  currentUser: null,
+  profiles: [],
+  posts: [],
+  comments: [],
+  likes: [],
+  notifications: [],
+  chatRooms: [],
+  chatRoomMembers: [],
+  messages: [],
+  mediaFiles: {},
+
+  signIn: async (email: string, password: string) => {
+    // Simulate authentication
+    const mockUser: AuthUser = {
+      id: 'mock-user-id',
+      email,
+      username: email.split('@')[0]
     };
+    set({ currentUser: mockUser });
 
-    return builder;
-  }
-
-  async insert<T>(table: Table, data: Partial<T>) {
-    try {
-      const newItem = {
-        id: uuidv4(),
-        created_at: new Date().toISOString(),
-        ...data
-      };
-      
-      this.storage[table].push(newItem);
-      this.saveToStorage(table);
-      
-      return { data: newItem as T, error: null };
-    } catch (error) {
-      return { data: null, error: error as Error };
-    }
-  }
-
-  async update<T>(table: Table, data: Partial<T>, match: Partial<T>) {
-    try {
-      const index = this.storage[table].findIndex(item => {
-        return Object.entries(match).every(([key, value]) => item[key] === value);
-      });
-
-      if (index === -1) {
-        throw new Error('Item not found');
-      }
-
-      this.storage[table][index] = {
-        ...this.storage[table][index],
-        ...data,
-        updated_at: new Date().toISOString()
-      };
-
-      this.saveToStorage(table);
-      
-      return { data: this.storage[table][index] as T, error: null };
-    } catch (error) {
-      return { data: null, error: error as Error };
-    }
-  }
-
-  async delete<T>(table: Table, match: Partial<T>) {
-    try {
-      const initialLength = this.storage[table].length;
-      
-      this.storage[table] = this.storage[table].filter(item => {
-        return !Object.entries(match).every(([key, value]) => item[key] === value);
-      });
-
-      if (initialLength === this.storage[table].length) {
-        throw new Error('No items found to delete');
-      }
-
-      this.saveToStorage(table);
-      
-      return { error: null };
-    } catch (error) {
-      return { error: error as Error };
-    }
-  }
-}
-
-// Create a singleton instance
-export const localDatabase = new LocalDatabase();
-
-// Mock auth functionality
-export const auth = {
-  getSession: async () => {
-    const session = localStorage.getItem('local_session');
-    return { data: { session: session ? JSON.parse(session) : null } };
+    // Dispatch auth change event
+    window.dispatchEvent(new CustomEvent('local-auth-change', {
+      detail: { event: 'SIGNED_IN', session: { user: mockUser } }
+    }));
   },
-  onAuthStateChange: (callback: (event: string, session: any) => void) => {
-    const handler = (e: AuthChangeEvent) => {
-      callback(e.detail.event, e.detail.session);
-    };
-    
-    window.addEventListener('local-auth-change' as any, handler as EventListener);
-    
-    return {
-      subscription: {
-        unsubscribe: () => {
-          window.removeEventListener('local-auth-change' as any, handler as EventListener);
-        }
-      }
-    };
-  },
-  signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
-    // Simple mock authentication
-    const mockUser = {
+
+  signUp: async (email: string, password: string, username: string) => {
+    const mockUser: AuthUser = {
       id: uuidv4(),
       email,
-      user_metadata: { username: email.split('@')[0] }
+      username
     };
-    const mockSession = {
-      user: mockUser,
-      access_token: 'mock_token'
+    
+    const newProfile: Profile = {
+      id: mockUser.id,
+      username,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      role: 'user'
     };
-    localStorage.setItem('local_session', JSON.stringify(mockSession));
-    window.dispatchEvent(new CustomEvent('local-auth-change', {
-      detail: { event: 'SIGNED_IN', session: mockSession }
+
+    set(state => ({
+      currentUser: mockUser,
+      profiles: [...state.profiles, newProfile]
     }));
-    return { data: { user: mockUser, session: mockSession }, error: null };
+
+    window.dispatchEvent(new CustomEvent('local-auth-change', {
+      detail: { event: 'SIGNED_UP', session: { user: mockUser } }
+    }));
   },
+
   signOut: async () => {
-    localStorage.removeItem('local_session');
+    set({ currentUser: null });
     window.dispatchEvent(new CustomEvent('local-auth-change', {
       detail: { event: 'SIGNED_OUT', session: null }
     }));
-    return { error: null };
   },
-  signUp: async ({ email, password, options }: { email: string; password: string; options?: { data?: any } }) => {
-    const mockUser = {
-      id: uuidv4(),
-      email,
-      user_metadata: options?.data || { username: email.split('@')[0] }
-    };
-    const mockSession = {
-      user: mockUser,
-      access_token: 'mock_token'
-    };
-    return { data: { user: mockUser, session: mockSession }, error: null };
-  }
-};
 
-// Export a mock Supabase client that uses the local database
-export const mockSupabase = {
-  from: (table: Table) => localDatabase.from(table),
-  auth
-};
+  getProfile: async (userId: string) => {
+    const { profiles } = get();
+    return profiles.find(p => p.id === userId) || null;
+  },
+
+  updateProfile: async (userId: string, updates: Partial<Profile>) => {
+    set(state => ({
+      profiles: state.profiles.map(profile =>
+        profile.id === userId
+          ? { ...profile, ...updates, updated_at: new Date().toISOString() }
+          : profile
+      )
+    }));
+  },
+
+  createPost: async (post: Omit<Post, 'id' | 'createdAt'>) => {
+    const newPost: Post = {
+      ...post,
+      id: uuidv4(),
+      createdAt: new Date().toISOString(),
+      likes: [],
+      comments: []
+    };
+
+    set(state => ({ posts: [newPost, ...state.posts] }));
+    return newPost;
+  },
+
+  getPosts: async () => {
+    return get().posts;
+  },
+
+  updatePost: async (id: string, updates: Partial<Post>) => {
+    set(state => ({
+      posts: state.posts.map(post =>
+        post.id === id ? { ...post, ...updates } : post
+      )
+    }));
+  },
+
+  deletePost: async (id: string) => {
+    set(state => ({
+      posts: state.posts.filter(post => post.id !== id)
+    }));
+  },
+
+  addComment: async (postId: string, content: string, userId: string) => {
+    const newComment: Comment = {
+      id: uuidv4(),
+      userId,
+      userName: get().profiles.find(p => p.id === userId)?.username || 'Unknown User',
+      content,
+      createdAt: new Date().toISOString(),
+      likes: [],
+      replies: []
+    };
+
+    set(state => ({
+      posts: state.posts.map(post =>
+        post.id === postId
+          ? { ...post, comments: [newComment, ...post.comments] }
+          : post
+      )
+    }));
+  },
+
+  deleteComment: async (commentId: string) => {
+    set(state => ({
+      posts: state.posts.map(post => ({
+        ...post,
+        comments: post.comments.filter(comment => comment.id !== commentId)
+      }))
+    }));
+  },
+
+  toggleLike: async (postId: string, userId: string) => {
+    const newLike = {
+      id: uuidv4(),
+      post_id: postId,
+      user_id: userId,
+      created_at: new Date().toISOString()
+    };
+
+    set(state => {
+      const existingLike = state.likes.find(
+        like => like.post_id === postId && like.user_id === userId
+      );
+
+      if (existingLike) {
+        return {
+          likes: state.likes.filter(like => like.id !== existingLike.id)
+        };
+      }
+
+      return {
+        likes: [...state.likes, newLike]
+      };
+    });
+  },
+
+  createChatRoom: async (name: string, members: string[]) => {
+    const roomId = uuidv4();
+    const now = new Date().toISOString();
+
+    const newRoom: ChatRoom = {
+      id: roomId,
+      name,
+      created_at: now,
+      is_group: members.length > 2
+    };
+
+    const newMembers: ChatRoomMember[] = members.map(userId => ({
+      room_id: roomId,
+      user_id: userId,
+      joined_at: now
+    }));
+
+    set(state => ({
+      chatRooms: [...state.chatRooms, newRoom],
+      chatRoomMembers: [...state.chatRoomMembers, ...newMembers]
+    }));
+
+    return roomId;
+  },
+
+  sendMessage: async (roomId: string, content: string, senderId: string, mediaUrl?: string) => {
+    const newMessage: Message = {
+      id: uuidv4(),
+      room_id: roomId,
+      sender_id: senderId,
+      content,
+      media_url: mediaUrl,
+      created_at: new Date().toISOString()
+    };
+
+    set(state => ({
+      messages: [...state.messages, newMessage]
+    }));
+  },
+
+  getMessages: async (roomId: string) => {
+    return get().messages.filter(message => message.room_id === roomId);
+  },
+
+  uploadMedia: async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result as string;
+        const fileId = uuidv4();
+        set(state => ({
+          mediaFiles: {
+            ...state.mediaFiles,
+            [fileId]: base64String
+          }
+        }));
+        resolve(fileId);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+}));
+
+// Add listener for auth state changes
+window.addEventListener('local-auth-change', ((event: CustomEvent) => {
+  const { event: eventType, session } = event.detail;
+  console.log('Auth state changed:', eventType, session);
+}) as EventListener);
+
+export default useLocalDatabase;

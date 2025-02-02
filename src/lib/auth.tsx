@@ -1,21 +1,13 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import useLocalDatabase from "./localDatabase";
 
 export type AuthUser = {
   id: string;
   email: string;
   username?: string;
 };
-
-type Profile = {
-  id: string;
-  username: string;
-  [key: string]: any;
-};
-
-type Table = 'profiles' | 'posts' | 'comments' | 'likes' | 'notifications' | 'messages' | 'chat_rooms' | 'chat_room_members';
 
 type AuthContextType = {
   user: AuthUser | null;
@@ -40,95 +32,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  const fetchProfile = async (userId: string): Promise<Profile | null> => {
-    const { data: profile, error } = await supabase
-      .from('profiles' as Table)
-      .select('username')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error);
-      return null;
-    }
-    return profile as Profile;
-  };
-
-  const updateUserState = async (session: any) => {
-    console.log("Updating user state with session:", session);
-    if (session?.user) {
-      const profile = await fetchProfile(session.user.id);
-      setUser({
-        id: session.user.id,
-        email: session.user.email!,
-        username: profile?.username || session.user.user_metadata?.username
-      });
-    } else {
-      setUser(null);
-    }
-  };
+  const localDb = useLocalDatabase();
 
   useEffect(() => {
-    let mounted = true;
+    const handleAuthChange = (event: CustomEvent) => {
+      const { event: eventType, session } = event.detail;
+      console.log("Auth state changed:", eventType, session);
 
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Initial session check:", session);
-        if (mounted) {
-          await updateUserState(session);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error("Error during session initialization:", error);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    const { subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event, session);
-      if (!mounted) return;
-
-      if (event === 'SIGNED_OUT') {
+      if (eventType === 'SIGNED_OUT') {
         setUser(null);
         localStorage.clear();
-        window.location.href = '/';
-      } else {
-        await updateUserState(session);
-        setLoading(false);
+        navigate('/');
+      } else if (session?.user) {
+        setUser(session.user);
       }
-    });
+      setLoading(false);
+    };
+
+    window.addEventListener('local-auth-change', handleAuthChange as EventListener);
+    setLoading(false);
 
     return () => {
-      mounted = false;
-      subscription.unsubscribe();
+      window.removeEventListener('local-auth-change', handleAuthChange as EventListener);
     };
   }, [navigate]);
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            username: username,
-          },
-        },
-      });
-
-      if (error) throw error;
-
+      await localDb.signUp(email, password, username);
       toast({
         title: "Success!",
-        description: "Please check your email to verify your account.",
+        description: "Account created successfully.",
       });
-      
       navigate("/");
     } catch (error: any) {
       toast({
@@ -142,27 +77,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-
-      const profile = await fetchProfile(data.user.id);
-      
-      if (profile) {
-        setUser({
-          id: data.user.id,
-          email: data.user.email!,
-          username: profile.username
-        });
-      }
-
+      await localDb.signIn(email, password);
       toast({
         title: "Welcome back!",
       });
-      
       navigate("/");
     } catch (error: any) {
       toast({
@@ -176,17 +94,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      console.log("Starting signOut process");
-      
+      await localDb.signOut();
       setUser(null);
       localStorage.clear();
-      
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      console.log("Successfully signed out");
-      
-      window.location.href = '/';
+      navigate('/');
     } catch (error: any) {
       console.error("Error during sign out:", error);
       toast({
@@ -194,7 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         title: "Error",
         description: error.message,
       });
-      window.location.href = '/';
+      navigate('/');
     }
   };
 
