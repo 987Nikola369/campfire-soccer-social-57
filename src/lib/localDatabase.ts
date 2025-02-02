@@ -318,15 +318,14 @@ export const mockSupabase = {
       };
     },
     onAuthStateChange: (callback: (event: string, session: any) => void) => {
-      const unsubscribe = useLocalDatabase.subscribe(
-        (state) => state.currentUser,
-        (user) => {
-          callback(
-            user ? 'SIGNED_IN' : 'SIGNED_OUT',
-            user ? { user } : null
-          );
-        }
-      );
+      const handler = (state: any) => {
+        callback(
+          state.currentUser ? 'SIGNED_IN' : 'SIGNED_OUT',
+          state.currentUser ? { user: state.currentUser } : null
+        );
+      };
+      
+      const unsubscribe = useLocalDatabase.subscribe(state => handler(state));
       return { subscription: { unsubscribe } };
     },
     signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
@@ -345,9 +344,9 @@ export const mockSupabase = {
           const state = useLocalDatabase.getState();
           switch (table) {
             case 'profiles':
-              return { data: state.profiles.find(p => p[column] === value) };
+              return { data: state.profiles.find(p => p[column as keyof typeof p] === value) };
             case 'posts':
-              return { data: state.posts.find(p => p[column] === value) };
+              return { data: state.posts.find(p => p[column as keyof typeof p] === value) };
             default:
               return { data: null };
           }
