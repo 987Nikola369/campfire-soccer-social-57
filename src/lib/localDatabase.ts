@@ -306,10 +306,55 @@ const useLocalDatabase = create<LocalDatabaseState>((set, get) => ({
   }
 }));
 
-// Add listener for auth state changes
-window.addEventListener('local-auth-change', ((event: CustomEvent) => {
-  const { event: eventType, session } = event.detail;
-  console.log('Auth state changed:', eventType, session);
-}) as EventListener);
+// Create a mock Supabase client that mirrors the real client's interface
+export const mockSupabase = {
+  auth: {
+    getSession: async () => {
+      const currentUser = useLocalDatabase.getState().currentUser;
+      return { 
+        data: { 
+          session: currentUser ? { user: currentUser } : null 
+        } 
+      };
+    },
+    onAuthStateChange: (callback: (event: string, session: any) => void) => {
+      const unsubscribe = useLocalDatabase.subscribe(
+        (state) => state.currentUser,
+        (user) => {
+          callback(
+            user ? 'SIGNED_IN' : 'SIGNED_OUT',
+            user ? { user } : null
+          );
+        }
+      );
+      return { subscription: { unsubscribe } };
+    },
+    signInWithPassword: async ({ email, password }: { email: string; password: string }) => {
+      await useLocalDatabase.getState().signIn(email, password);
+      return { data: { user: useLocalDatabase.getState().currentUser }, error: null };
+    },
+    signOut: async () => {
+      await useLocalDatabase.getState().signOut();
+      return { error: null };
+    }
+  },
+  from: (table: string) => ({
+    select: () => ({
+      eq: (column: string, value: any) => ({
+        single: async () => {
+          const state = useLocalDatabase.getState();
+          switch (table) {
+            case 'profiles':
+              return { data: state.profiles.find(p => p[column] === value) };
+            case 'posts':
+              return { data: state.posts.find(p => p[column] === value) };
+            default:
+              return { data: null };
+          }
+        }
+      })
+    })
+  })
+});
 
 export default useLocalDatabase;
