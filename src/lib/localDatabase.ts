@@ -355,6 +355,6 @@ export const mockSupabase = {
       })
     })
   })
-});
+};
 
 export default useLocalDatabase;
