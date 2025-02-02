@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import useLocalDatabase from "./localDatabase";
+import { useAuthStore } from "./store/authStore";
 
 export type AuthUser = {
   id: string;
@@ -28,11 +28,10 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const localDb = useLocalDatabase();
+  const authStore = useAuthStore();
 
   useEffect(() => {
     const handleAuthChange = (event: CustomEvent) => {
@@ -40,11 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("Auth state changed:", eventType, session);
 
       if (eventType === 'SIGNED_OUT') {
-        setUser(null);
-        localStorage.clear();
         navigate('/');
-      } else if (session?.user) {
-        setUser(session.user);
       }
       setLoading(false);
     };
@@ -59,7 +54,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      await localDb.signUp(email, password, username);
+      await authStore.signUp(email, password, username);
       toast({
         title: "Success!",
         description: "Account created successfully.",
@@ -77,7 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      await localDb.signIn(email, password);
+      await authStore.signIn(email, password);
       toast({
         title: "Welcome back!",
       });
@@ -94,9 +89,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      await localDb.signOut();
-      setUser(null);
-      localStorage.clear();
+      await authStore.signOut();
       navigate('/');
     } catch (error: any) {
       console.error("Error during sign out:", error);
@@ -110,7 +103,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user: authStore.currentUser, 
+      loading, 
+      signIn, 
+      signUp, 
+      signOut 
+    }}>
       {children}
     </AuthContext.Provider>
   );
