@@ -34,15 +34,15 @@ const CommentSection = ({
 
   return (
     <div className="mt-4 space-y-4 animate-fade-in">
-      <div className="flex gap-2 flex-col sm:flex-row">
+      <div className="flex gap-2">
         <Textarea
           placeholder="Write a comment..."
-          className="bg-[#2a2d31] border-none text-gray-300 resize-none min-h-[40px] flex-1"
+          className="bg-[#2a2d31] border-none text-gray-300 resize-none min-h-[40px] rounded-full px-4 py-2"
           id={`comment-${postId}`}
         />
         <Button
-          size="sm"
-          className="bg-[#E41E12] hover:bg-[#E41E12]/90 w-full sm:w-auto hover:scale-105 transition-transform"
+          size="icon"
+          className="bg-[#E41E12] hover:bg-[#E41E12]/90 rounded-full w-10 h-10 flex items-center justify-center hover:scale-105 transition-transform shrink-0"
           onClick={() => {
             const textarea = document.getElementById(`comment-${postId}`) as HTMLTextAreaElement;
             onComment(postId, textarea.value);
