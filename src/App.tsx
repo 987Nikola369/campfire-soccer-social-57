@@ -122,7 +122,7 @@ const BottomNav = () => {
 
   return (
     <nav className="fixed bottom-0 w-full z-50 bg-[#1a1d21]/95 backdrop-blur-lg border-t border-white/10">
-      <div className="max-w-2xl mx-auto px-4 h-16 flex items-center justify-around">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-around">
         <a href="/" className="text-white/70 hover:text-white transition-colors">
           <Users className="h-5 w-5" />
         </a>
