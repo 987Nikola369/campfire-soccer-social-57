@@ -19,7 +19,7 @@ const Index = () => {
       <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4">
         <Card className="w-full max-w-md p-6 animate-fade-in bg-[#1a1d21]/90 backdrop-blur-lg border-none">
           <img 
-            src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" 
+            src="/src/assets/images/logo.png" 
             alt="Logo" 
             className="h-12 mx-auto mb-6"
           />
