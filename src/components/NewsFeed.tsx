@@ -39,7 +39,6 @@ const NewsFeed = () => {
 
   const handleComment = (postId: string, content: string) => {
     if (!content.trim()) {
-      // If content is empty, just refresh the posts from localStorage
       const savedPosts = localStorage.getItem('posts');
       if (savedPosts) {
         setPosts(JSON.parse(savedPosts));
@@ -69,7 +68,7 @@ const NewsFeed = () => {
   };
 
   return (
-    <div className="space-y-4 py-4">
+    <div className="max-w-2xl mx-auto space-y-4 py-4">
       <PostCreationForm onPostCreated={handleNewPost} />
       {posts.map((post) => (
         <PostCard

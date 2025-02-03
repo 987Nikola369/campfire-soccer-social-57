@@ -56,7 +56,7 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
   };
 
   return (
-    <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none">
+    <Card className="p-4 bg-[#1a1d21] border-none shadow-lg">
       <Textarea
         placeholder="Share something with the team..."
         className="bg-[#2a2d31] border-none text-gray-300 mb-4 min-h-[96px] resize-none"
@@ -83,25 +83,25 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
           </Button>
         </div>
       )}
-      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2">
-        <div className="flex gap-2 flex-wrap">
+      <div className="flex justify-between items-center gap-2">
+        <div className="flex gap-2">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2 flex-1 sm:flex-none"
+            className="text-gray-400 hover:text-white hover:bg-[#2a2d31]"
             onClick={() => document.getElementById('image-upload')?.click()}
           >
             <ImageIcon className="w-5 h-5" />
-            Image
+            <span className="ml-2">Image</span>
           </Button>
           <Button 
             variant="ghost" 
             size="sm" 
-            className="text-gray-400 hover:text-white hover:bg-[#2a2d31] gap-2 flex-1 sm:flex-none"
+            className="text-gray-400 hover:text-white hover:bg-[#2a2d31]"
             onClick={() => document.getElementById('video-upload')?.click()}
           >
             <Video className="w-5 h-5" />
-            Video
+            <span className="ml-2">Video</span>
           </Button>
           <input
             type="file"
@@ -119,7 +119,7 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
           />
         </div>
         <Button 
-          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white px-6 w-full sm:w-auto"
+          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white px-6"
           onClick={handlePost}
           disabled={!newPost.trim() && !mediaFile}
         >
