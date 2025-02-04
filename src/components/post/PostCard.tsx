@@ -17,10 +17,19 @@ interface PostCardProps {
   post: Post;
   onLike: (postId: string) => void;
   onComment: (postId: string, content: string) => void;
+  onLikeComment: (commentId: string) => void;
+  onReplyComment: (commentId: string, content: string) => void;
   onDelete?: (postId: string) => void;
 }
 
-const PostCard = ({ post, onLike, onComment, onDelete }: PostCardProps) => {
+const PostCard = ({ 
+  post, 
+  onLike, 
+  onComment, 
+  onLikeComment,
+  onReplyComment,
+  onDelete 
+}: PostCardProps) => {
   const [showComments, setShowComments] = useState(false);
   const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
   const { toast } = useToast();
@@ -32,64 +41,6 @@ const PostCard = ({ post, onLike, onComment, onDelete }: PostCardProps) => {
         title: "Success",
         description: "Post deleted successfully",
       });
-    }
-  };
-
-  const handleLikeComment = (commentId: string) => {
-    const updatedComments = post.comments.map(comment => {
-      if (comment.id === commentId) {
-        const userId = "current-user";
-        const hasLiked = comment.likes.includes(userId);
-        return {
-          ...comment,
-          likes: hasLiked
-            ? comment.likes.filter(id => id !== userId)
-            : [...comment.likes, userId]
-        };
-      }
-      return comment;
-    });
-
-    // Update local storage with the modified comments
-    const savedPosts = localStorage.getItem('posts');
-    if (savedPosts) {
-      const posts = JSON.parse(savedPosts);
-      const updatedPosts = posts.map((p: Post) =>
-        p.id === post.id ? { ...p, comments: updatedComments } : p
-      );
-      localStorage.setItem('posts', JSON.stringify(updatedPosts));
-    }
-  };
-
-  const handleReplyComment = (commentId: string, content: string) => {
-    if (!content.trim()) return;
-
-    const updatedComments = post.comments.map(comment => {
-      if (comment.id === commentId) {
-        const newReply = {
-          id: crypto.randomUUID(),
-          userId: "current-user",
-          userName: "Nikola",
-          content,
-          createdAt: new Date().toISOString(),
-          likes: []
-        };
-        return {
-          ...comment,
-          replies: [newReply, ...comment.replies]
-        };
-      }
-      return comment;
-    });
-
-    // Update local storage with the modified comments
-    const savedPosts = localStorage.getItem('posts');
-    if (savedPosts) {
-      const posts = JSON.parse(savedPosts);
-      const updatedPosts = posts.map((p: Post) =>
-        p.id === post.id ? { ...p, comments: updatedComments } : p
-      );
-      localStorage.setItem('posts', JSON.stringify(updatedPosts));
     }
   };
 
@@ -176,8 +127,8 @@ const PostCard = ({ post, onLike, onComment, onDelete }: PostCardProps) => {
             postId={post.id}
             comments={post.comments}
             onComment={onComment}
-            onLikeComment={handleLikeComment}
-            onReplyComment={handleReplyComment}
+            onLikeComment={onLikeComment}
+            onReplyComment={onReplyComment}
           />
         </div>
       )}
