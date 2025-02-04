@@ -67,6 +67,10 @@ const NewsFeed = () => {
     }));
   };
 
+  const handleDelete = (postId: string) => {
+    setPosts(prev => prev.filter(post => post.id !== postId));
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-4 py-4">
       <div className="bg-[#1a1d21] rounded-lg p-4 shadow-lg">
@@ -78,6 +82,7 @@ const NewsFeed = () => {
           post={post}
           onLike={handleLike}
           onComment={handleComment}
+          onDelete={handleDelete}
         />
       ))}
     </div>

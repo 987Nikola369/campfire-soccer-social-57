@@ -2,80 +2,185 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, MessageSquare } from "lucide-react";
+import { Heart, MessageSquare, MoreVertical, Trash2 } from "lucide-react";
 import { Post } from "@/types/post";
 import CommentSection from "./CommentSection";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PostCardProps {
   post: Post;
   onLike: (postId: string) => void;
   onComment: (postId: string, content: string) => void;
+  onDelete?: (postId: string) => void;
 }
 
-const PostCard = ({ post, onLike, onComment }: PostCardProps) => {
+const PostCard = ({ post, onLike, onComment, onDelete }: PostCardProps) => {
+  const [showComments, setShowComments] = useState(false);
   const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
+  const { toast } = useToast();
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(post.id);
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
+    }
+  };
+
+  const handleLikeComment = (commentId: string) => {
+    const updatedComments = post.comments.map(comment => {
+      if (comment.id === commentId) {
+        const userId = "current-user";
+        const hasLiked = comment.likes.includes(userId);
+        return {
+          ...comment,
+          likes: hasLiked
+            ? comment.likes.filter(id => id !== userId)
+            : [...comment.likes, userId]
+        };
+      }
+      return comment;
+    });
+
+    // Update local storage with the modified comments
+    const savedPosts = localStorage.getItem('posts');
+    if (savedPosts) {
+      const posts = JSON.parse(savedPosts);
+      const updatedPosts = posts.map((p: Post) =>
+        p.id === post.id ? { ...p, comments: updatedComments } : p
+      );
+      localStorage.setItem('posts', JSON.stringify(updatedPosts));
+    }
+  };
+
+  const handleReplyComment = (commentId: string, content: string) => {
+    if (!content.trim()) return;
+
+    const updatedComments = post.comments.map(comment => {
+      if (comment.id === commentId) {
+        const newReply = {
+          id: crypto.randomUUID(),
+          userId: "current-user",
+          userName: "Nikola",
+          content,
+          createdAt: new Date().toISOString(),
+          likes: []
+        };
+        return {
+          ...comment,
+          replies: [newReply, ...comment.replies]
+        };
+      }
+      return comment;
+    });
+
+    // Update local storage with the modified comments
+    const savedPosts = localStorage.getItem('posts');
+    if (savedPosts) {
+      const posts = JSON.parse(savedPosts);
+      const updatedPosts = posts.map((p: Post) =>
+        p.id === post.id ? { ...p, comments: updatedComments } : p
+      );
+      localStorage.setItem('posts', JSON.stringify(updatedPosts));
+    }
+  };
 
   return (
-    <Card className="p-4 bg-[#1a1d21] border-none shadow-lg animate-fade-in">
-      <div className="flex items-center gap-3 mb-4">
-        <Avatar>
-          {avatarImage ? (
-            <img src={avatarImage} alt={post.userName} className="object-cover" />
-          ) : (
-            <AvatarFallback className="bg-[#2a2d31] text-white">
-              {post.userName.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
+    <Card className="bg-[#1a1d21] border-none shadow-lg overflow-hidden">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-10 w-10">
+              {avatarImage ? (
+                <img src={avatarImage} alt={post.userName} className="object-cover" />
+              ) : (
+                <AvatarFallback>
+                  {post.userName.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div>
+              <h3 className="font-semibold">{post.userName}</h3>
+              <p className="text-sm text-gray-400">
+                {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+          {onDelete && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-[#2a2d31] border-none">
+                <DropdownMenuItem 
+                  className="text-red-500 focus:text-red-500 focus:bg-[#1a1d21]"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Post
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
-        </Avatar>
-        <div className="flex flex-col">
-          <h3 className="font-semibold text-white">{post.userName}</h3>
-          <p className="text-sm text-gray-400">
-            {new Date(post.createdAt).toLocaleDateString()}
-          </p>
+        </div>
+        
+        <p className="text-gray-300 mb-4 break-words">{post.content}</p>
+        
+        {post.mediaUrl && (
+          <div className="mb-4 rounded-lg overflow-hidden">
+            {post.mediaType === 'image' ? (
+              <img src={post.mediaUrl} alt="Post media" className="w-full object-cover" />
+            ) : (
+              <video src={post.mediaUrl} className="w-full" controls />
+            )}
+          </div>
+        )}
+        
+        <div className="flex gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`p-0 h-auto hover:scale-105 transition-transform ${
+              post.likes.includes("current-user") ? "text-[#E41E12]" : "text-gray-400"
+            }`}
+            onClick={() => onLike(post.id)}
+          >
+            <Heart className="w-5 h-5 mr-1" />
+            {post.likes.length}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-0 h-auto text-gray-400 hover:scale-105 transition-transform"
+            onClick={() => setShowComments(!showComments)}
+          >
+            <MessageSquare className="w-5 h-5 mr-1" />
+            {post.comments.length}
+          </Button>
         </div>
       </div>
       
-      <p className="mb-4 text-gray-200 break-words">{post.content}</p>
-      
-      {post.mediaUrl && (
-        <div className="mb-4">
-          {post.mediaType === 'image' ? (
-            <img src={post.mediaUrl} alt="Post media" className="w-full max-h-96 object-cover rounded-lg" />
-          ) : (
-            <video src={post.mediaUrl} className="w-full max-h-96 rounded-lg" controls />
-          )}
+      {showComments && (
+        <div className="border-t border-[#2a2d31] p-4">
+          <CommentSection
+            postId={post.id}
+            comments={post.comments}
+            onComment={onComment}
+            onLikeComment={handleLikeComment}
+            onReplyComment={handleReplyComment}
+          />
         </div>
       )}
-
-      <div className="flex gap-4 text-gray-400 mb-4">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className={`hover:bg-[#2a2d31] gap-2 hover:scale-105 transition-transform ${
-            post.likes.includes("current-user") ? "text-[#E41E12]" : ""
-          }`}
-          onClick={() => onLike(post.id)}
-        >
-          <Heart className="w-4 h-4" />
-          {post.likes.length}
-        </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="hover:bg-[#2a2d31] gap-2 hover:scale-105 transition-transform"
-        >
-          <MessageSquare className="w-4 h-4" />
-          {post.comments.length}
-        </Button>
-      </div>
-
-      <CommentSection
-        postId={post.id}
-        comments={post.comments}
-        onComment={onComment}
-        onLikeComment={() => {}}
-        onReplyComment={() => {}}
-      />
     </Card>
   );
 };
