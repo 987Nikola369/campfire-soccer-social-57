@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageVideo, Send } from "lucide-react";
+import { ImagePlus, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { Post } from "@/types/post";
@@ -90,7 +90,7 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
           className="text-gray-400 hover:text-white hover:bg-[#2a2d31] w-10 h-10 rounded-full"
           onClick={() => document.getElementById('media-upload')?.click()}
         >
-          <ImageVideo className="w-5 h-5" />
+          <ImagePlus className="w-5 h-5" />
         </Button>
         <input
           type="file"
