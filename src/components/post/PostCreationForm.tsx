@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Image as ImageIcon, Video, Send } from "lucide-react";
+import { Upload, Send } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { Post } from "@/types/post";
@@ -84,46 +84,29 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
         </div>
       )}
       <div className="flex justify-between items-center gap-2">
-        <div className="flex gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-gray-400 hover:text-white hover:bg-[#2a2d31]"
-            onClick={() => document.getElementById('image-upload')?.click()}
-          >
-            <ImageIcon className="w-5 h-5" />
-            <span className="ml-2">Image</span>
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="text-gray-400 hover:text-white hover:bg-[#2a2d31]"
-            onClick={() => document.getElementById('video-upload')?.click()}
-          >
-            <Video className="w-5 h-5" />
-            <span className="ml-2">Video</span>
-          </Button>
-          <input
-            type="file"
-            id="image-upload"
-            className="hidden"
-            accept="image/*"
-            onChange={handleMediaUpload}
-          />
-          <input
-            type="file"
-            id="video-upload"
-            className="hidden"
-            accept="video/*"
-            onChange={handleMediaUpload}
-          />
-        </div>
         <Button 
-          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white px-6"
+          variant="ghost" 
+          size="sm" 
+          className="text-gray-400 hover:text-white hover:bg-[#2a2d31]"
+          onClick={() => document.getElementById('media-upload')?.click()}
+        >
+          <Upload className="w-5 h-5" />
+          <span className="ml-2">Upload Media</span>
+        </Button>
+        <input
+          type="file"
+          id="media-upload"
+          className="hidden"
+          accept="image/*,video/*"
+          onChange={handleMediaUpload}
+        />
+        <Button 
+          size="icon"
+          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white rounded-full w-10 h-10 p-0 flex items-center justify-center"
           onClick={handlePost}
           disabled={!newPost.trim() && !mediaFile}
         >
-          Post
+          <Send className="w-5 h-5" />
         </Button>
       </div>
     </Card>
