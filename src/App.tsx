@@ -159,31 +159,42 @@ const App = () => (
     <QueryClientProvider client={new QueryClient()}>
       <TooltipProvider>
         <AuthProvider>
-          <div className="min-h-screen bg-[#231F20]">
-            <Header />
-            <main className="pt-20 pb-20 px-4">
-              <div className="max-w-4xl mx-auto">
-                <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/profile" element={
-                    <ProtectedRoute>
-                      <Profile />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/messages" element={
-                    <ProtectedRoute>
-                      <Messages />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/academy" element={
-                    <ProtectedRoute>
-                      <Academy />
-                    </ProtectedRoute>
-                  } />
-                </Routes>
-              </div>
-            </main>
-            <BottomNav />
+          <div 
+            className="min-h-screen bg-[#231F20]"
+            style={{
+              backgroundImage: 'url("/lovable-uploads/f6f36788-bb85-4a97-a0c2-078365a22fb7.png")',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundAttachment: 'fixed',
+            }}
+          >
+            <div className="min-h-screen bg-black/50 backdrop-blur-sm">
+              <Header />
+              <main className="pt-20 pb-20 px-4">
+                <div className="max-w-4xl mx-auto">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/messages" element={
+                      <ProtectedRoute>
+                        <Messages />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/academy" element={
+                      <ProtectedRoute>
+                        <Academy />
+                      </ProtectedRoute>
+                    } />
+                  </Routes>
+                </div>
+              </main>
+              <BottomNav />
+            </div>
           </div>
           <Toaster />
           <Sonner />
