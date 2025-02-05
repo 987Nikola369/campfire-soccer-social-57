@@ -45,7 +45,7 @@ const PostCard = ({
   };
 
   return (
-    <Card className="bg-[#1a1d21]/90 backdrop-blur-lg border-none shadow-lg overflow-hidden">
+    <Card className="bg-[#1a1d21] border-none shadow-lg overflow-hidden">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -72,9 +72,9 @@ const PostCard = ({
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#2a2d31] border-none">
+              <DropdownMenuContent align="end" className="bg-[#1a1d21] border-none">
                 <DropdownMenuItem 
-                  className="text-red-500 focus:text-red-500 focus:bg-[#1a1d21]"
+                  className="text-red-500 focus:text-red-500 focus:bg-[#2a2d31]"
                   onClick={handleDelete}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -122,7 +122,7 @@ const PostCard = ({
       </div>
       
       {showComments && (
-        <div className="border-t border-[#2a2d31] p-4">
+        <div className="border-t border-[#2a2d31] p-4 bg-[#1a1d21]">
           <CommentSection
             postId={post.id}
             comments={post.comments}
