@@ -51,7 +51,7 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 w-full z-50 bg-[#1a1d21]/95 backdrop-blur-lg border-b border-white/10">
+    <header className="sticky top-0 left-0 w-full z-50 bg-[#1a1d21]/71 backdrop-blur-lg border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <img src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" alt="Logo" className="h-8" />
         {user && (
@@ -121,7 +121,7 @@ const BottomNav = () => {
   if (!user) return null;
 
   return (
-    <nav className="fixed bottom-0 w-full z-50 bg-[#1a1d21]/95 backdrop-blur-lg border-t border-white/10">
+    <nav className="sticky bottom-0 left-0 w-full z-50 bg-[#1a1d21]/71 backdrop-blur-lg border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-around">
         <a href="/" className="text-white/70 hover:text-white transition-colors">
           <Users className="h-5 w-5" />
@@ -162,14 +162,14 @@ const App = () => (
           <div 
             className="min-h-screen bg-[#231F20]"
             style={{
-              backgroundImage: 'url("/lovable-uploads/f6f36788-bb85-4a97-a0c2-078365a22fb7.png")',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
               backgroundAttachment: 'fixed',
             }}
           >
-            <div className="min-h-screen bg-black/50 backdrop-blur-sm">
+            <div id="particles-js" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}></div>
+            <div className="min-h-screen bg-black/50 backdrop-blur-sm relative z-10">
               <Header />
               <main className="pt-20 pb-20 px-4">
                 <div className="max-w-4xl mx-auto">
