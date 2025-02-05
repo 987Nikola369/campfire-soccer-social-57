@@ -45,7 +45,7 @@ const PostCard = ({
   };
 
   return (
-    <Card className="bg-[#1a1d21] border-none shadow-lg overflow-hidden">
+    <Card className="bg-[#1a1d21]/95 backdrop-blur-lg border-none shadow-lg overflow-hidden">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
