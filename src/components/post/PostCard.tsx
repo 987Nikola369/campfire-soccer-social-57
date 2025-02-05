@@ -119,7 +119,7 @@ const PostCard = ({
         </div>
       </div>
       
-      <div className="border-t border-[#2a2d31] p-4 bg-[#1a1d21]">
+      <div className="border-t border-[#2a2d31] p-4 bg-[#1a1d21]/60 backdrop-blur-lg">
         <CommentSection
           postId={post.id}
           comments={post.comments}
