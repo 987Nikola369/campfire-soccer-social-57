@@ -30,7 +30,6 @@ const PostCard = ({
   onReplyComment,
   onDelete 
 }: PostCardProps) => {
-  const [showComments, setShowComments] = useState(false);
   const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
   const { toast } = useToast();
 
@@ -45,7 +44,7 @@ const PostCard = ({
   };
 
   return (
-    <Card className="bg-[#1a1d21]/90 backdrop-blur-lg border-none shadow-lg overflow-hidden">
+    <Card className="bg-[#1a1d21]/60 backdrop-blur-lg border-none shadow-lg overflow-hidden">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -72,9 +71,9 @@ const PostCard = ({
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-[#1a1d21] border-none">
+              <DropdownMenuContent align="end" className="bg-[#E41E12] border-none">
                 <DropdownMenuItem 
-                  className="text-red-500 focus:text-red-500 focus:bg-[#2a2d31]"
+                  className="text-white focus:text-white focus:bg-[#ff2a1f]"
                   onClick={handleDelete}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -113,7 +112,6 @@ const PostCard = ({
             variant="ghost"
             size="sm"
             className="p-0 h-auto text-gray-400 hover:scale-105 transition-transform"
-            onClick={() => setShowComments(!showComments)}
           >
             <MessageSquare className="w-5 h-5 mr-1" />
             {post.comments.length}
@@ -121,17 +119,15 @@ const PostCard = ({
         </div>
       </div>
       
-      {showComments && (
-        <div className="border-t border-[#2a2d31] p-4 bg-[#1a1d21]">
-          <CommentSection
-            postId={post.id}
-            comments={post.comments}
-            onComment={onComment}
-            onLikeComment={onLikeComment}
-            onReplyComment={onReplyComment}
-          />
-        </div>
-      )}
+      <div className="border-t border-[#2a2d31] p-4 bg-[#1a1d21]">
+        <CommentSection
+          postId={post.id}
+          comments={post.comments}
+          onComment={onComment}
+          onLikeComment={onLikeComment}
+          onReplyComment={onReplyComment}
+        />
+      </div>
     </Card>
   );
 };
