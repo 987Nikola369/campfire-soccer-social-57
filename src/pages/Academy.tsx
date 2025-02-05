@@ -1,16 +1,10 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-interface AcademyPost {
-  id: string;
-  content: string;
-  imageUrl: string;
-  createdAt: string;
-}
+import { CalendarDays } from "lucide-react";
 
 const Academy = () => {
-  const [posts] = useState<AcademyPost[]>([
+  const [posts] = useState([
     {
       id: "1",
       content: "Join us for our annual summer camp! This year we're focusing on developing technical skills and tactical understanding. Perfect for young players aged 8-16 who want to take their game to the next level.",
@@ -35,28 +29,29 @@ const Academy = () => {
     <div className="space-y-4 py-4 animate-fade-in">
       <h1 className="text-2xl font-bold text-white mb-6">Academy Updates</h1>
       {posts.map((post) => (
-        <Card key={post.id} className="p-4 bg-[#1a1d21] border-none animate-fade-in">
+        <Card key={post.id} className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none animate-fade-in">
           <div className="flex items-center gap-3 mb-4">
             <Avatar>
               <AvatarFallback className="bg-[#2a2d31] text-white">
-                AC
+                RA
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
-              <h3 className="font-semibold text-white">Academy Staff</h3>
-              <p className="text-sm text-gray-400">
-                {new Date(post.createdAt).toLocaleDateString()}
-              </p>
+            <div>
+              <h3 className="font-semibold text-white">Rocket Academy</h3>
+              <div className="flex items-center gap-1 text-sm text-gray-400">
+                <CalendarDays className="w-4 h-4" />
+                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+              </div>
             </div>
           </div>
-          
-          <p className="mb-4 text-gray-200 break-words">{post.content}</p>
-          
-          <img 
-            src={post.imageUrl} 
-            alt="Academy post" 
-            className="w-full max-h-96 object-cover rounded-lg"
-          />
+          <p className="text-gray-300 mb-4">{post.content}</p>
+          {post.imageUrl && (
+            <img
+              src={post.imageUrl}
+              alt="Post content"
+              className="w-full h-48 object-cover rounded-lg"
+            />
+          )}
         </Card>
       ))}
     </div>
