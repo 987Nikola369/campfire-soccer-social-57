@@ -146,7 +146,7 @@ const NewsFeed = () => {
 
   return (
     <div className="max-w-2xl mx-auto space-y-4 py-4">
-      <div className="bg-[#1a1d21] rounded-lg p-4 shadow-lg">
+      <div className="bg-[#1a1d21]/90 backdrop-blur-lg rounded-lg p-4 shadow-lg border-none">
         <PostCreationForm onPostCreated={handleNewPost} />
       </div>
       {posts.map((post) => (

@@ -51,7 +51,7 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 left-0 w-full z-50 bg-[#1a1d21]/71 backdrop-blur-lg border-b border-white/10">
+    <header className="sticky top-0 left-0 w-full z-50 bg-[#1a1d21]/90 backdrop-blur-lg border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <img src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" alt="Logo" className="h-8" />
         {user && (
@@ -60,7 +60,7 @@ const Header = () => {
               <DropdownMenuTrigger className="text-white/70 hover:text-white transition-colors">
                 <Bell className="h-5 w-5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 bg-[#1a1d21] border-white/10">
+              <DropdownMenuContent align="end" className="w-80 bg-[#1a1d21]/90 backdrop-blur-lg border-white/10">
                 {notifications.length === 0 ? (
                   <DropdownMenuItem className="text-white/70">
                     No notifications
@@ -121,7 +121,7 @@ const BottomNav = () => {
   if (!user) return null;
 
   return (
-    <nav className="sticky bottom-0 left-0 w-full z-50 bg-[#1a1d21]/71 backdrop-blur-lg border-t border-white/10">
+    <nav className="sticky bottom-0 left-0 w-full z-50 bg-[#1a1d21]/90 backdrop-blur-lg border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-around">
         <a href="/" className="text-white/70 hover:text-white transition-colors">
           <Users className="h-5 w-5" />
@@ -205,3 +205,4 @@ const App = () => (
 );
 
 export default App;
+

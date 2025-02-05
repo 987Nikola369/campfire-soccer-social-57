@@ -176,7 +176,7 @@ const Profile = () => {
             ) : (
               <div className="space-y-4">
                 {posts.map((post) => (
-                  <Card key={post.id} className="p-4 bg-[#2a2d31] border-none">
+                  <Card key={post.id} className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none">
                     <div className="flex items-center gap-3 mb-4">
                       <Avatar>
                         <AvatarFallback className="bg-[#3a3d41] text-white">
