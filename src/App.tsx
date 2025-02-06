@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import { Users, GraduationCap, Bell, ChevronDown } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -54,7 +55,7 @@ const Header = () => {
     <header className="sticky top-0 left-0 w-full z-50 bg-[#1a1d21]/90 backdrop-blur-lg border-b border-white/10">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <img src="/lovable-uploads/1621746e-2299-451a-9e17-01589d3389cf.png" alt="Logo" className="h-8" />
-        {user && (
+        {user ? (
           <div className="flex items-center gap-6">
             <DropdownMenu>
               <DropdownMenuTrigger className="text-white/70 hover:text-white transition-colors">
@@ -108,6 +109,13 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+        ) : (
+          <Button
+            onClick={() => navigate("/auth")}
+            className="bg-[#E41E12] hover:bg-[#ff2a1f] text-white"
+          >
+            Login
+          </Button>
         )}
       </div>
     </header>
