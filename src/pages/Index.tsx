@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import AuthForm from "@/components/AuthForm";
 import NewsFeed from "@/components/NewsFeed";
+import LandingPage from "@/components/LandingPage";
 import { useAuth } from "@/lib/auth";
 
 const Index = () => {
@@ -15,18 +16,7 @@ const Index = () => {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-[calc(100vh-5rem)] flex items-center justify-center p-4">
-        <Card className="w-full max-w-md p-6 animate-fade-in bg-[#1a1d21]/90 backdrop-blur-lg border-none">
-          <img 
-            src="/src/assets/images/logo.png" 
-            alt="Logo" 
-            className="h-12 mx-auto mb-6"
-          />
-          <AuthForm />
-        </Card>
-      </div>
-    );
+    return <LandingPage />;
   }
 
   return (
