@@ -9,22 +9,34 @@ const LandingPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="pt-16 pb-20">
-          <div className="text-center">
-            <h1 className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
-              <span className="block">Welcome to</span>
-              <span className="block text-[#E41E12]">Rocket Football Academy</span>
-            </h1>
-            <p className="mt-3 max-w-md mx-auto text-base text-gray-300 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-              Join the elite football training program founded by Ivan Rakitic. Develop your skills, connect with other players, and take your game to the next level.
-            </p>
-            <div className="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-              <div className="rounded-md shadow">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <div>
+              <h1 className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
+                <span className="block">Ivana Rakitić</span>
+                <span className="block">Football Camp for</span>
+                <span className="block text-[#E41E12]">young talents</span>
+                <span className="block">in Split!</span>
+              </h1>
+              <p className="mt-3 text-base text-gray-300 sm:text-lg md:mt-5 md:text-xl">
+                Rocket Football Academy offers young talents a unique opportunity to improve their football skills under the guidance of professional coaches and with the support of our founder, Ivan Rakitić.
+              </p>
+              <div className="mt-5">
                 <Button
                   onClick={() => navigate("/auth")}
-                  className="w-full flex items-center justify-center px-8 py-3 text-base font-medium rounded-md text-white bg-[#E41E12] hover:bg-[#ff2a1f] md:py-4 md:text-lg md:px-10"
+                  className="w-full sm:w-auto flex items-center justify-center px-8 py-3 text-base font-medium rounded-md text-white bg-[#E41E12] hover:bg-[#ff2a1f] md:py-4 md:text-lg md:px-10"
                 >
-                  Get Started
+                  Apply Now
                 </Button>
+              </div>
+            </div>
+            <div className="relative">
+              <img
+                src="/lovable-uploads/9f84cb13-a489-4bba-bdac-7175b9da698a.png"
+                alt="Ivan Rakitic"
+                className="w-full h-auto"
+              />
+              <div className="absolute top-0 right-0">
+                <span className="text-[#E41E12] text-2xl md:text-3xl font-bold italic">Ivan Rakitić</span>
               </div>
             </div>
           </div>
