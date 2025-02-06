@@ -334,54 +334,6 @@ export type Database = {
         }
         Relationships: []
       }
-      users: {
-        Row: {
-          age: number | null
-          avatar_url: string | null
-          created_at: string | null
-          email: string
-          full_name: string | null
-          id: string
-          is_parent: boolean | null
-          password: string
-          position: string | null
-          role: string | null
-          team: string | null
-          updated_at: string | null
-          username: string
-        }
-        Insert: {
-          age?: number | null
-          avatar_url?: string | null
-          created_at?: string | null
-          email: string
-          full_name?: string | null
-          id: string
-          is_parent?: boolean | null
-          password: string
-          position?: string | null
-          role?: string | null
-          team?: string | null
-          updated_at?: string | null
-          username: string
-        }
-        Update: {
-          age?: number | null
-          avatar_url?: string | null
-          created_at?: string | null
-          email?: string
-          full_name?: string | null
-          id?: string
-          is_parent?: boolean | null
-          password?: string
-          position?: string | null
-          role?: string | null
-          team?: string | null
-          updated_at?: string | null
-          username?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
