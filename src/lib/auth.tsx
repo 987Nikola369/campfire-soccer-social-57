@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from "./store/authStore";
+import useLocalDatabase from "./localDatabase";
 
 export type AuthUser = {
   id: string;
@@ -32,6 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const authStore = useAuthStore();
+  const localDatabase = useLocalDatabase();
 
   useEffect(() => {
     const handleAuthChange = (event: CustomEvent) => {
@@ -54,7 +56,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      await authStore.signUp(email, password, username);
+      const mockUser: AuthUser = {
+        id: uuidv4(),
+        email,
+        username
+      };
+
+      // Create the profile using the local database
+      await localDatabase.createProfile({
+        id: mockUser.id,
+        username: username,
+        full_name: username,
+      });
+
+      authStore.signUp(mockUser);
+
       toast({
         title: "Success!",
         description: "Account created successfully.",
@@ -67,6 +83,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: error.message,
       });
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 

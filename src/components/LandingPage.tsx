@@ -1,21 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import AuthForm from "@/components/AuthForm";
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="pt-16 pb-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-4xl tracking-tight font-extrabold text-white sm:text-5xl md:text-6xl">
+              <h1 className="text-3xl tracking-tight font-extrabold text-white sm:text-4xl md:text-5xl">
                 <span className="block">Ivana Rakitić</span>
                 <span className="block">Football Camp for</span>
-                <span className="block text-[#E41E12]">young talents</span>
-                <span className="block">in Split!</span>
+                <span className="block">young talents in</span>
+                <span className="block text-[#E41E12]">Split!</span>
               </h1>
               <p className="mt-3 text-base text-gray-300 sm:text-lg md:mt-5 md:text-xl">
                 Rocket Football Academy offers young talents a unique opportunity to improve their football skills under the guidance of professional coaches and with the support of our founder, Ivan Rakitić.
@@ -23,7 +24,7 @@ const LandingPage = () => {
               <div className="mt-5">
                 <Button
                   onClick={() => navigate("/auth")}
-                  className="w-full sm:w-auto flex items-center justify-center px-8 py-3 text-base font-medium rounded-md text-white bg-[#E41E12] hover:bg-[#ff2a1f] md:py-4 md:text-lg md:px-10"
+                  className="w-full sm:w-auto flex items-center justify-center px-8 py-3 text-base font-medium rounded-md text-white bg-[#E41E12] hover:bg-[#ff2a1f] md:py-4 md:text-lg md:px-10 transition-colors ease-in-out"
                 >
                   Apply Now
                 </Button>
@@ -42,13 +43,13 @@ const LandingPage = () => {
           </div>
         </div>
 
-        {/* Feature Section */}
+        {/* Section 2: Official Academy Kit */}
         <div className="py-12 bg-[#1a1d21]/90 backdrop-blur-lg rounded-lg">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="px-4 sm:px-6 lg:px-8">
             <div className="lg:text-center">
-              <h2 className="text-base text-[#E41E12] font-semibold tracking-wide uppercase">Features</h2>
+              <h2 className="text-base text-[#E41E12] font-semibold tracking-wide uppercase">Official Academy Kit</h2>
               <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
-                Everything you need to succeed
+                Every participant receives our official academy kit, designed for performance and comfort. The kit represents our values and unites our community under one identity.
               </p>
             </div>
 
@@ -62,9 +63,9 @@ const LandingPage = () => {
                     </svg>
                   </div>
                   <div className="ml-16">
-                    <h3 className="text-lg leading-6 font-medium text-white">Professional Training</h3>
+                    <h3 className="text-lg leading-6 font-medium text-white">Premium Quality</h3>
                     <p className="mt-2 text-base text-gray-300">
-                      Get access to professional training programs designed by top coaches.
+                      Professional grade materials for maximum comfort
                     </p>
                   </div>
                 </div>
@@ -77,9 +78,55 @@ const LandingPage = () => {
                     </svg>
                   </div>
                   <div className="ml-16">
-                    <h3 className="text-lg leading-6 font-medium text-white">Community</h3>
+                    <h3 className="text-lg leading-6 font-medium text-white">Complete Set</h3>
                     <p className="mt-2 text-base text-gray-300">
-                      Connect with other players, share experiences, and grow together.
+                      All necessary tools included
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Professional Training, Team Building, Personal Growth */}
+        <div className="py-12 bg-[#1a1d21]/90 backdrop-blur-lg rounded-lg">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="lg:text-center">
+              <h2 className="text-base text-[#E41E12] font-semibold tracking-wide uppercase">Training</h2>
+              <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
+                Develop your skills
+              </p>
+            </div>
+
+            <div className="mt-10">
+              <div className="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
+                {/* Feature 1 */}
+                <div className="relative">
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-[#E41E12] text-white">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  <div className="ml-16">
+                    <h3 className="text-lg leading-6 font-medium text-white">Professional Training</h3>
+                    <p className="mt-2 text-base text-gray-300">
+                      Learn from experienced coaches and develop your skills in a professional environment
+                    </p>
+                  </div>
+                </div>
+
+                {/* Feature 2 */}
+                <div className="relative">
+                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-[#E41E12] text-white">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  <div className="ml-16">
+                    <h3 className="text-lg leading-6 font-medium text-white">Team Building</h3>
+                    <p className="mt-2 text-base text-gray-300">
+                      Build lasting friendships and develop essential teamwork skills with fellow players
                     </p>
                   </div>
                 </div>
@@ -92,24 +139,9 @@ const LandingPage = () => {
                     </svg>
                   </div>
                   <div className="ml-16">
-                    <h3 className="text-lg leading-6 font-medium text-white">Resources</h3>
+                    <h3 className="text-lg leading-6 font-medium text-white">Personal Growth</h3>
                     <p className="mt-2 text-base text-gray-300">
-                      Access exclusive training materials, videos, and tutorials.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Feature 4 */}
-                <div className="relative">
-                  <div className="absolute flex items-center justify-center h-12 w-12 rounded-md bg-[#E41E12] text-white">
-                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                  </div>
-                  <div className="ml-16">
-                    <h3 className="text-lg leading-6 font-medium text-white">Personalized Progress</h3>
-                    <p className="mt-2 text-base text-gray-300">
-                      Track your development with personalized progress tracking.
+                      Focus on individual development and achieve your personal football goals
                     </p>
                   </div>
                 </div>
@@ -118,29 +150,57 @@ const LandingPage = () => {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* Section 4: About Us */}
+        <div className="py-12 bg-[#1a1d21]/90 backdrop-blur-lg rounded-lg">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="lg:text-center">
+              <h2 className="text-base text-[#E41E12] font-semibold tracking-wide uppercase">About Us</h2>
+              <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
+                Under the expert eye of Ivan Rakitić, this camp offers the opportunity to train in a professional environment.
+              </p>
+              <p className="mt-3 text-base text-gray-300 sm:text-lg md:mt-5 md:text-xl">
+                Through technical, tactical and physical training, participants develop key football skills, but also qualities such as teamwork and discipline.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 5: Our Football Community */}
+        <div className="py-12 bg-[#1a1d21]/90 backdrop-blur-lg rounded-lg">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="lg:text-center">
+              <h2 className="text-base text-[#E41E12] font-semibold tracking-wide uppercase">Our Football Community</h2>
+              <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
+                Rocket Football Academy is not just a camp, but a community of passionate young football players, coaches and parents.
+              </p>
+              <p className="mt-3 text-base text-gray-300 sm:text-lg md:mt-5 md:text-xl">
+                Through this camp, we nurture friendships and support that lasts long after the training sessions end. Our participants become part of a network of young athletes and mentors who motivate and support them on their way.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 6: Where Passion Meets Football Excellence */}
+        <div className="py-12 bg-[#1a1d21]/90 backdrop-blur-lg rounded-lg">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="lg:text-center">
+              <h2 className="text-base text-[#E41E12] font-semibold tracking-wide uppercase">Our Vision</h2>
+              <p className="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-white sm:text-4xl">
+                Where Passion Meets Football Excellence
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Login Form Section */}
         <div className="py-16">
           <div className="relative bg-[#1a1d21]/90 backdrop-blur-lg rounded-lg shadow-xl overflow-hidden">
             <div className="px-4 py-12 sm:px-6 lg:py-16 lg:px-8">
-              <div className="relative lg:grid lg:grid-cols-2 lg:gap-8 lg:items-center">
-                <div className="relative">
-                  <h3 className="text-2xl font-extrabold text-white tracking-tight sm:text-3xl">
-                    Ready to join?
-                  </h3>
-                  <p className="mt-3 text-lg text-gray-300">
-                    Start your journey with Rocket Football Academy today and take your first step towards becoming a professional player.
-                  </p>
-                </div>
-                <div className="mt-10 relative lg:mt-0">
-                  <div className="ml-0 lg:ml-10">
-                    <Button
-                      onClick={() => navigate("/auth")}
-                      className="w-full flex items-center justify-center px-8 py-3 text-base font-medium rounded-md text-white bg-[#E41E12] hover:bg-[#ff2a1f] md:py-4 md:text-lg md:px-10"
-                    >
-                      Join Now
-                    </Button>
-                  </div>
-                </div>
+              <div className="relative">
+                <h3 className="text-2xl font-extrabold text-white tracking-tight sm:text-3xl text-center mb-8">
+                  Login or Register
+                </h3>
+                <AuthForm />
               </div>
             </div>
           </div>

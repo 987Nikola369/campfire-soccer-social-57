@@ -92,12 +92,12 @@ const Profile = () => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto animate-fade-in">
-      <div className="relative" 
+    <div className="w-full max-w-4xl mx-auto animate-fade-in duration-700 ease-in-out">
+      <div className="relative mt-[-5rem]" 
            onMouseEnter={() => setShowCoverUpload(true)}
            onMouseLeave={() => setShowCoverUpload(false)}>
         <div 
-          className="h-48 w-full rounded-t-lg bg-cover bg-center"
+          className="h-48 w-full rounded-b-lg bg-cover bg-center"
           style={{
             backgroundImage: pendingCoverImage || coverImage ? 
               `url(${pendingCoverImage || coverImage})` : 
@@ -107,12 +107,11 @@ const Profile = () => {
         {showCoverUpload && (
           <Button
             variant="secondary"
-            size="sm"
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70"
+            size="icon"
+            className="absolute top-2 right-2 bg-[#E41E12] hover:bg-[#ff2a1f] rounded-full transition-colors ease-in-out"
             onClick={() => document.getElementById('cover-upload')?.click()}
           >
-            <Camera className="mr-2 h-4 w-4" />
-            Update Cover
+            <Camera className="h-4 w-4 text-white" />
           </Button>
         )}
         <input
@@ -126,7 +125,7 @@ const Profile = () => {
         <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2"
              onMouseEnter={() => setShowAvatarUpload(true)}
              onMouseLeave={() => setShowAvatarUpload(false)}>
-          <Avatar className="h-32 w-32 border-4 border-background relative">
+          <Avatar className="h-32 w-32 border-4 border-[#E41E12] relative">
             {(pendingAvatarImage || avatarImage) ? (
               <AvatarImage src={pendingAvatarImage || avatarImage} alt="Profile" />
             ) : (
@@ -135,11 +134,11 @@ const Profile = () => {
             {showAvatarUpload && (
               <Button
                 variant="secondary"
-                size="sm"
-                className="absolute inset-0 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center"
+                size="icon"
+                className="absolute inset-0 bg-[#E41E12] hover:bg-[#ff2a1f] rounded-full flex items-center justify-center transition-colors ease-in-out"
                 onClick={() => document.getElementById('avatar-upload')?.click()}
               >
-                <Camera className="h-4 w-4" />
+                <Camera className="h-4 w-4 text-white" />
               </Button>
             )}
           </Avatar>
@@ -155,12 +154,12 @@ const Profile = () => {
       
       <div className="mt-20 px-8">
         <div className="flex flex-col items-center">
-          <h1 className="text-2xl font-bold">Nikola</h1>
+          <h1 className="text-2xl font-bold text-[#E41E12]">Nikola</h1>
           <p className="text-muted-foreground">Member since 1/25/2025</p>
           {hasChanges && (
             <Button 
               variant="secondary" 
-              className="mt-4 bg-[#2a2d31] hover:bg-[#3a3d41] text-white border-none"
+              className="mt-4 bg-[#2a2d31] hover:bg-[#3a3d41] text-white border-none transition-colors ease-in-out"
               onClick={handleSaveChanges}
             >
               Save Changes
@@ -169,51 +168,22 @@ const Profile = () => {
         </div>
         
         <div className="mt-8">
-          <Card className="bg-[#1a1d21]/90 backdrop-blur-lg border-none p-6">
-            <h2 className="text-xl font-semibold mb-4">Posts</h2>
+          <Card className="bg-[#1a1d21]/90 backdrop-blur-lg border-none p-6 animate-in fade-in duration-700 ease-in-out">
+            <h2 className="text-xl font-semibold mb-4 text-[#E41E12]">Posts</h2>
             {posts.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">No posts yet</p>
             ) : (
               <div className="space-y-4">
                 {posts.map((post) => (
-                  <Card key={post.id} className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Avatar>
-                        <AvatarFallback className="bg-[#3a3d41] text-white">
-                          {post.userName.slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex flex-col">
-                        <h3 className="font-semibold text-white">{post.userName}</h3>
-                        <p className="text-sm text-gray-400">
-                          {new Date(post.createdAt).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <p className="mb-4 text-gray-200">{post.content}</p>
-                    
-                    {post.mediaUrl && (
-                      <div className="mb-4">
-                        {post.mediaType === 'image' ? (
-                          <img src={post.mediaUrl} alt="Post media" className="max-h-96 rounded-lg" />
-                        ) : (
-                          <video src={post.mediaUrl} className="max-h-96 rounded-lg" controls />
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex gap-4 text-gray-400">
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" />
-                        <span>{post.likes.length}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageSquare className="w-4 h-4" />
-                        <span>{post.comments.length}</span>
-                      </div>
-                    </div>
-                  </Card>
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onLike={handleLike}
+                    onComment={handleComment}
+                    onLikeComment={handleLikeComment}
+                    onReplyComment={handleReplyComment}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </div>
             )}

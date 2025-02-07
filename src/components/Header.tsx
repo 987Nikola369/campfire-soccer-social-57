@@ -102,12 +102,7 @@ const Header = () => {
             </DropdownMenu>
           </div>
         ) : (
-          <Button
-            onClick={() => navigate("/auth")}
-            className="bg-[#E41E12] hover:bg-[#ff2a1f] text-white"
-          >
-            Login
-          </Button>
+          null
         )}
       </div>
     </header>

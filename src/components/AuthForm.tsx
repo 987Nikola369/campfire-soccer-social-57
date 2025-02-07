@@ -40,20 +40,20 @@ const AuthForm = () => {
   };
 
   return (
-    <Tabs defaultValue="login" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 mb-6">
-        <TabsTrigger value="login">Login</TabsTrigger>
-        <TabsTrigger value="register">Register</TabsTrigger>
+    <Tabs defaultValue="login" className="w-full animate-in fade-in duration-700 ease-in-out">
+      <TabsList className="grid w-full grid-cols-2 mb-6 bg-[#2a2d31] backdrop-blur-lg">
+        <TabsTrigger value="login" className="transition-colors ease-in-out">Login</TabsTrigger>
+        <TabsTrigger value="register" className="transition-colors ease-in-out">Register</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="login">
+      <TabsContent value="login" className="animate-in fade-in duration-700 ease-in-out">
         <form onSubmit={(e) => handleSubmit(e, "login")} className="space-y-4">
           <Input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-white/10"
+            className="bg-[#2a2d31] backdrop-blur-lg border-none"
             required
           />
           <Input
@@ -61,23 +61,23 @@ const AuthForm = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-white/10"
+            className="bg-[#2a2d31] backdrop-blur-lg border-none"
             required
           />
-          <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80" disabled={isLoading}>
+          <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80 transition-colors ease-in-out" disabled={isLoading}>
             {isLoading ? "Loading..." : "Login"}
           </Button>
         </form>
       </TabsContent>
 
-      <TabsContent value="register">
+      <TabsContent value="register" className="animate-in fade-in duration-700 ease-in-out">
         <form onSubmit={(e) => handleSubmit(e, "register")} className="space-y-4">
           <Input
             type="text"
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="bg-white/10"
+            className="bg-[#2a2d31] backdrop-blur-lg border-none"
             required
           />
           <Input
@@ -85,7 +85,7 @@ const AuthForm = () => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="bg-white/10"
+            className="bg-[#2a2d31] backdrop-blur-lg border-none"
             required
           />
           <Input
@@ -93,18 +93,18 @@ const AuthForm = () => {
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="bg-white/10"
+            className="bg-[#2a2d31] backdrop-blur-lg border-none"
             required
             minLength={6}
           />
-          <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80" disabled={isLoading}>
+          <Button type="submit" className="w-full bg-[#E41E12] hover:bg-[#E41E12]/80 transition-colors ease-in-out" disabled={isLoading}>
             {isLoading ? "Loading..." : "Register"}
           </Button>
         </form>
       </TabsContent>
 
       <div className="mt-6">
-        <Button variant="outline" className="w-full hover:bg-white/10" disabled={isLoading}>
+        <Button variant="outline" className="w-full hover:bg-white/10 transition-colors ease-in-out" disabled={isLoading}>
           <Mail className="mr-2 h-4 w-4" />
           Continue with Google
         </Button>

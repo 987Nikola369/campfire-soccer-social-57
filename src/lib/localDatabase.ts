@@ -50,7 +50,7 @@ interface LocalDatabaseState {
   chatRooms: ChatRoom[];
   chatRoomMembers: ChatRoomMember[];
   messages: Message[];
-  mediaFiles: { [key: string]: string }; // Store base64 strings
+  mediaFiles: { [key: string]: string };
 
   // Auth operations
   signIn: (email: string, password: string) => Promise<void>;
@@ -60,6 +60,8 @@ interface LocalDatabaseState {
   // Profile operations
   getProfile: (userId: string) => Promise<Profile | null>;
   updateProfile: (userId: string, updates: Partial<Profile>) => Promise<void>;
+  getProfiles: () => Promise<Profile[]>;
+  createProfile: (profile: Omit<Profile, 'created_at' | 'updated_at' | 'id'>) => Promise<Profile>;
 
   // Post operations
   createPost: (post: Omit<Post, 'id' | 'createdAt'>) => Promise<Post>;
@@ -117,13 +119,11 @@ const useLocalDatabase = create<LocalDatabaseState>((set, get) => ({
       username
     };
     
-    const newProfile: Profile = {
+    const newProfile = await get().createProfile({
+      username: username,
+      full_name: username,
       id: mockUser.id,
-      username,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      role: 'user'
-    };
+    });
 
     set(state => ({
       currentUser: mockUser,
@@ -147,6 +147,10 @@ const useLocalDatabase = create<LocalDatabaseState>((set, get) => ({
     return profiles.find(p => p.id === userId) || null;
   },
 
+  getProfiles: async () => {
+    return get().profiles;
+  },
+
   updateProfile: async (userId: string, updates: Partial<Profile>) => {
     set(state => ({
       profiles: state.profiles.map(profile =>
@@ -155,6 +159,21 @@ const useLocalDatabase = create<LocalDatabaseState>((set, get) => ({
           : profile
       )
     }));
+  },
+
+  createProfile: async (profile: Omit<Profile, 'created_at' | 'updated_at' | 'id'>): Promise<Profile> => {
+    const newProfile: Profile = {
+      ...profile,
+      id: uuidv4(),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    set(state => ({
+      profiles: [...state.profiles, newProfile]
+    }));
+
+    return newProfile;
   },
 
   createPost: async (post: Omit<Post, 'id' | 'createdAt'>) => {
@@ -344,9 +363,9 @@ export const mockSupabase = {
           const state = useLocalDatabase.getState();
           switch (table) {
             case 'profiles':
-              return { data: state.profiles.find(p => p[column as keyof typeof p] === value) };
+              return { data: state.profiles.find(p => p[column as keyof Profile] === value) };
             case 'posts':
-              return { data: state.posts.find(p => p[column as keyof typeof p] === value) };
+              return { data: state.posts.find(p => p[column as keyof Post] === value) };
             default:
               return { data: null };
           }

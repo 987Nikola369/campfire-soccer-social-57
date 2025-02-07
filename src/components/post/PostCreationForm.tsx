@@ -56,7 +56,7 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
   };
 
   return (
-    <Card className="p-4 bg-[#1a1d21] border-none shadow-lg">
+    <Card className="p-4 bg-[#1a1d21]/90 backdrop-blur-lg border-none shadow-lg animate-in fade-in duration-700 ease-in-out">
       <Textarea
         placeholder="Share something with the team..."
         className="bg-[#2a2d31] border-none text-gray-300 mb-4 min-h-[96px] resize-none"
@@ -73,7 +73,7 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
           <Button
             variant="destructive"
             size="sm"
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 transition-colors ease-in-out"
             onClick={() => {
               setMediaFile(null);
               setMediaPreview(null);
@@ -87,7 +87,7 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
         <Button 
           variant="ghost" 
           size="icon"
-          className="text-gray-400 hover:text-white hover:bg-[#2a2d31] w-10 h-10 rounded-full"
+          className="text-gray-400 hover:text-white hover:bg-[#2a2d31] w-10 h-10 rounded-full transition-colors ease-in-out"
           onClick={() => document.getElementById('media-upload')?.click()}
         >
           <ImagePlus className="w-5 h-5" />
@@ -101,7 +101,7 @@ const PostCreationForm = ({ onPostCreated }: PostCreationFormProps) => {
         />
         <Button 
           size="icon"
-          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white rounded-full w-10 h-10 p-0 flex items-center justify-center"
+          className="bg-[#E41E12] hover:bg-[#E41E12]/90 text-white rounded-full w-10 h-10 p-0 flex items-center justify-center transition-transform ease-in-out"
           onClick={handlePost}
           disabled={!newPost.trim() && !mediaFile}
         >

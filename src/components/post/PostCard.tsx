@@ -44,21 +44,21 @@ const PostCard = ({
   };
 
   return (
-    <Card className="bg-[#1a1d21]/60 backdrop-blur-lg border-none shadow-lg overflow-hidden">
+    <Card className="bg-[#1a1d21]/60 backdrop-blur-lg border-none shadow-lg overflow-hidden animate-in fade-in duration-700 ease-in-out">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 border-2 border-[#E41E12]">
               {avatarImage ? (
                 <img src={avatarImage} alt={post.userName} className="object-cover" />
               ) : (
-                <AvatarFallback>
+                <AvatarFallback className="text-xs">
                   {post.userName.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               )}
             </Avatar>
             <div>
-              <h3 className="font-semibold">{post.userName}</h3>
+              <h3 className="font-semibold text-[#E41E12]">{post.userName}</h3>
               <p className="text-sm text-gray-400">
                 {new Date(post.createdAt).toLocaleDateString()}
               </p>
@@ -67,13 +67,13 @@ const PostCard = ({
           {onDelete && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white">
+                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white transition-colors ease-in-out">
                   <MoreVertical className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-[#E41E12] border-none">
                 <DropdownMenuItem 
-                  className="text-white focus:text-white focus:bg-[#ff2a1f]"
+                  className="text-white focus:text-white focus:bg-[#ff2a1f] transition-colors ease-in-out"
                   onClick={handleDelete}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -100,7 +100,7 @@ const PostCard = ({
           <Button
             variant="ghost"
             size="sm"
-            className={`p-0 h-auto hover:scale-105 transition-transform ${
+            className={`p-0 h-auto hover:scale-105 transition-transform ease-in-out ${
               post.likes.includes("current-user") ? "text-[#E41E12]" : "text-gray-400"
             }`}
             onClick={() => onLike(post.id)}
@@ -111,7 +111,7 @@ const PostCard = ({
           <Button
             variant="ghost"
             size="sm"
-            className="p-0 h-auto text-gray-400 hover:scale-105 transition-transform"
+            className="p-0 h-auto text-gray-400 hover:scale-105 transition-transform ease-in-out"
           >
             <MessageSquare className="w-5 h-5 mr-1" />
             {post.comments.length}
@@ -124,8 +124,8 @@ const PostCard = ({
           postId={post.id}
           comments={post.comments}
           onComment={onComment}
-          onLikeComment={onLikeComment}
-          onReplyComment={onReplyComment}
+          onLikeComment={handleLikeComment}
+          onReplyComment={handleReplyComment}
         />
       </div>
     </Card>

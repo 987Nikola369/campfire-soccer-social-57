@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
 import { AuthUser } from '../auth';
-import { LocalDatabaseState } from './types';
 
-interface AuthStore extends Pick<LocalDatabaseState, 'currentUser'> {
+interface AuthStore {
+  currentUser: AuthUser | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, username: string) => Promise<void>;
+  signUp: (user: AuthUser) => void;
   signOut: () => Promise<void>;
 }
 
@@ -15,8 +14,11 @@ export const useAuthStore = create<AuthStore>()(
     (set) => ({
       currentUser: null,
       signIn: async (email: string, password: string) => {
+        // Placeholder for actual sign-in logic
+        // In a real application, you would verify the email and password
+        // and fetch the user data from a database or API
         const mockUser: AuthUser = {
-          id: 'mock-user-id',
+          id: 'mock-user-id', // Replace with actual user ID
           email,
           username: email.split('@')[0]
         };
@@ -25,15 +27,10 @@ export const useAuthStore = create<AuthStore>()(
           detail: { event: 'SIGNED_IN', session: { user: mockUser } }
         }));
       },
-      signUp: async (email: string, password: string, username: string) => {
-        const mockUser: AuthUser = {
-          id: uuidv4(),
-          email,
-          username
-        };
-        set({ currentUser: mockUser });
+      signUp: (user: AuthUser) => {
+        set({ currentUser: user });
         window.dispatchEvent(new CustomEvent('local-auth-change', {
-          detail: { event: 'SIGNED_UP', session: { user: mockUser } }
+          detail: { event: 'SIGNED_UP', session: { user: user } }
         }));
       },
       signOut: async () => {
