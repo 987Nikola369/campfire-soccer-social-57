@@ -1,49 +1,73 @@
-import React, { useEffect } from 'react';
-import { TopNavigation, BottomNavigation } from './components/layout/Navigation';
-import { useAuthStore } from './store/auth';
-import { usePostsStore } from './store/posts';
-import { Home } from './pages/Home';
-import { Academy } from './pages/Academy';
-import Leaderboard from './components/Leaderboard'; // Ensure correct import
-import { Messages } from './pages/Messages';
-import { Profile } from './pages/Profile';
-import { Route, Routes, BrowserRouter } from 'react-router-dom';
-import { Landing } from './components/landing';
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/lib/auth";
+import Header from "@/components/Header";
+import BottomNav from "@/components/BottomNav";
+import React, { lazy, Suspense } from "react";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
-function App() {
-  const { user } = useAuthStore();
-  const { posts } = usePostsStore(); // Access posts to ensure PostsStore is initialized
+const Index = lazy(() => import("./pages/Index"));
+const Profile = lazy(() => import("@/components/Profile"));
+const Messages = lazy(() => import("@/components/Messages"));
+const Academy = lazy(() => import("./pages/Academy"));
+const Directory = lazy(() => import("./pages/Directory"));
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    console.log('App - Initialized with user:', user);
-    console.log('App - Initialized with posts:', posts);
-  }, [user, posts]);
-
-  if (!user) {
-    return <Landing />;
-  }
-
-  return (
-    <BrowserRouter>
-      <div className="min-h-screen bg-accent text-white">
-        <TopNavigation />
-        <main className="max-w-2xl mx-auto px-4 py-16">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/academy" element={<Academy />} />
-            <Route path="/directory" element={<Leaderboard />} /> {/* Ensure correct path */}
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </main>
-        <BottomNavigation />
-      </div>
-    </BrowserRouter>
-  );
-}
+const App = () => (
+  <BrowserRouter>
+    <QueryClientProvider client={new QueryClient()}>
+      <TooltipProvider>
+        <AuthProvider>
+          <div 
+            className="min-h-screen bg-[#231F20]"
+            style={{
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundAttachment: 'fixed',
+            }}
+          >
+            <div id="particles-js" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}></div>
+            <div className="min-h-screen bg-black/50 relative z-10">
+              <Header />
+              <main className="pt-20 pb-20 px-4">
+                <Suspense fallback={<div>Loading...</div>}>
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <Profile />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/messages" element={
+                      <ProtectedRoute>
+                        <Messages />
+                      </ProtectedRoute>
+                    } />
+                    <Route path="/academy" element={
+                      <ProtectedRoute>
+                        <Academy />
+                      </ProtectedRoute>
+                    } />
+                     <Route path="/directory" element={
+                      <ProtectedRoute>
+                        <Directory />
+                      </ProtectedRoute>
+                    } />
+                  </Routes>
+                </Suspense>
+              </main>
+              <BottomNav />
+            </div>
+          </div>
+          <Toaster />
+          <Sonner />
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
+);
 
 export default App;

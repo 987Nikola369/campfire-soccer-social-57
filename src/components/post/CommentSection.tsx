@@ -1,84 +1,167 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { useAuthStore } from '../../store/auth'; // Import useAuthStore
-import { usePostsStore } from '../../store/posts';
-import { Comment } from '../../types';
-import { CommentCard } from './CommentCard';
-import { Send } from 'lucide-react'; // Import Send icon
-import { ErrorBoundary } from './ErrorBoundary'; // Import ErrorBoundary
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Send, Heart, Reply } from "lucide-react";
+import { Comment } from "@/types/post";
 
 interface CommentSectionProps {
   postId: string;
+  comments: Comment[];
+  onComment: (postId: string, content: string) => void;
+  onLikeComment: (commentId: string) => void;
+  onReplyComment: (commentId: string, content: string) => void;
 }
 
-export const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
-  const { user } = useAuthStore();
-  const { posts, addComment } = usePostsStore();
-  const [commentContent, setCommentContent] = useState('');
-  const post = posts.find((p) => p.id === postId);
-  const commentInputRef = useRef<HTMLTextAreaElement>(null);
+const CommentSection = ({ 
+  postId, 
+  comments, 
+  onComment, 
+  onLikeComment,
+  onReplyComment 
+}: CommentSectionProps) => {
+  const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log('CommentSection - Post retrieved:', post);
-  }, [post]);
-
-  const handleAddComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !commentContent.trim()) return;
-    addComment(postId, user.id, commentContent);
-    setCommentContent('');
-    if (commentInputRef.current) {
-      commentInputRef.current.value = ''; // Clear the textarea
+  const handleReplySubmit = (commentId: string) => {
+    const textarea = document.getElementById(`reply-${commentId}`) as HTMLTextAreaElement;
+    if (textarea.value.trim()) {
+      onReplyComment(commentId, textarea.value);
+      textarea.value = '';
+      setReplyingTo(null);
     }
-    console.log('CommentSection - Comment added:', commentContent);
   };
 
-  if (!post) {
-    console.log('CommentSection - No post found for postId:', postId);
-    return <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg p-4 text-center text-gray-400">No post found</div>;
-  }
-
   return (
-    <motion.div
-      className="mt-4"
-      initial={{ opacity: 0, y: -20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-    >
-      <form onSubmit={handleAddComment} className="flex space-x-4 mb-4">
-        <motion.img
-          src={user?.profilePicture || 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=150'}
-          alt={user?.username || 'User'}
-          className="h-8 w-8 rounded-full object-cover"
-          whileHover={{ scale: 1.1 }}
+    <div className="mt-4 space-y-4">
+      <div className="flex gap-2 items-center">
+        <Textarea
+          placeholder="Write a comment..."
+          className="bg-[#1e2124] border-none text-gray-300 resize-none h-10 min-h-[40px] rounded-full px-4 py-2"
+          id={`comment-${postId}`}
         />
-        <div className="flex-1 relative">
-          <textarea
-            value={commentContent}
-            onChange={(e) => setCommentContent(e.target.value)}
-            placeholder="Add a comment..."
-            className="w-full bg-transparent text-white placeholder-gray-400 resize-none focus:outline-none p-2 border border-gray-700 rounded-full"
-            rows={1}
-            ref={commentInputRef}
-          />
-        </div>
-        <motion.button
-          type="submit"
-          disabled={commentContent.trim() === ''}
-          className="bg-[#E41E12] text-white p-2 rounded-full w-10 h-10 flex items-center justify-center hover:bg-[#E41E12]/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+        <Button
+          size="icon"
+          className="bg-[#E41E12] hover:bg-[#E41E12]/90 w-10 h-10 rounded-full flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
+          onClick={() => {
+            const textarea = document.getElementById(`comment-${postId}`) as HTMLTextAreaElement;
+            onComment(postId, textarea.value);
+            textarea.value = '';
+          }}
         >
-          <Send size={20} />
-        </motion.button>
-      </form>
+          <Send className="w-4 h-4" />
+        </Button>
+      </div>
+      
+      {comments.map((comment) => (
+        <div key={comment.id} className="pl-4 sm:pl-8 pt-2">
+          <div className="bg-[#1e2124] rounded-lg p-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Avatar className="h-6 w-6">
+                {avatarImage ? (
+                  <img src={avatarImage} alt={comment.userName} className="object-cover" />
+                ) : (
+                  <AvatarFallback className="text-xs">
+                    {comment.userName.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              <span className="font-semibold text-sm text-white">{comment.userName}</span>
+              <span className="text-xs text-gray-500">
+                {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: 'numeric',
+                  hour12: true
+                })}
+              </span>
+            </div>
+            <p className="mt-1 text-sm text-gray-300 break-words pl-8">{comment.content}</p>
+          </div>
+          
+          <div className="flex gap-4 mt-2 pl-8">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`p-0 h-auto hover:bg-transparent ${
+                comment.likes.includes("current-user") ? "text-[#E41E12]" : "text-gray-500"
+              } hover:text-[#E41E12] transition-colors flex items-center gap-1`}
+              onClick={() => onLikeComment(comment.id)}
+            >
+              <Heart className="w-4 h-4" />
+              <span className="text-xs">{comment.likes.length}</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-0 h-auto text-gray-500 hover:text-white hover:bg-transparent transition-colors flex items-center gap-1"
+              onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
+            >
+              <span className="text-xs">Reply</span>
+            </Button>
+          </div>
 
-      {post?.comments.map((comment) => (
-        <ErrorBoundary key={comment.id} fallback={<p className="text-red-500">Failed to load comment</p>}>
-          <CommentCard comment={comment} postId={postId} />
-        </ErrorBoundary>
+          {replyingTo === comment.id && (
+            <div className="mt-2 flex gap-2 pl-8 animate-fade-in">
+              <Textarea
+                placeholder="Write a reply..."
+                className="bg-[#1e2124] border-none text-gray-300 resize-none h-10 min-h-[40px] flex-1 text-sm rounded-full px-4 py-2"
+                id={`reply-${comment.id}`}
+              />
+              <Button
+                size="icon"
+                className="bg-[#E41E12] hover:bg-[#E41E12]/90 w-10 h-10 rounded-full flex items-center justify-center shrink-0 hover:scale-105 transition-transform"
+                onClick={() => handleReplySubmit(comment.id)}
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
+
+          {comment.replies.map((reply) => (
+            <div key={reply.id} className="ml-8 mt-2">
+              <div className="bg-[#1e2124] rounded-lg p-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Avatar className="h-5 w-5">
+                    {avatarImage ? (
+                      <img src={avatarImage} alt={reply.userName} className="object-cover" />
+                    ) : (
+                      <AvatarFallback className="text-xs">
+                        {reply.userName.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    )}
+                  </Avatar>
+                  <span className="font-semibold text-sm text-white">{reply.userName}</span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(reply.createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      hour12: true
+                    })}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-gray-300 break-words pl-7">{reply.content}</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`p-0 h-auto mt-1 ml-8 hover:bg-transparent ${
+                  reply.likes.includes("current-user") ? "text-[#E41E12]" : "text-gray-500"
+                } hover:text-[#E41E12] transition-colors flex items-center gap-1`}
+                onClick={() => onLikeComment(reply.id)}
+              >
+                <Heart className="w-3 h-3" />
+                <span className="text-xs">{reply.likes.length}</span>
+              </Button>
+            </div>
+          ))}
+        </div>
       ))}
-    </motion.div>
+    </div>
   );
 };
+
+export default CommentSection;

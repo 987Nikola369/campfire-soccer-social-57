@@ -1,128 +1,135 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { MoreHorizontal, Rocket } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useAuthStore } from '../../store/auth'; // Import useAuthStore
-import { usePostsStore } from '../../store/posts';
-import { CommentSection } from './CommentSection';
-import { LikeButton } from './LikeButton'; // Import LikeButton
-import { Menu } from '@headlessui/react';
-import { Trash2 } from 'lucide-react';
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Heart, MessageSquare, MoreVertical, Trash2 } from "lucide-react";
+import { Post } from "@/types/post";
+import CommentSection from "./CommentSection";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
 
 interface PostCardProps {
-  post: {
-    id: string;
-    userId: string;
-    content: string;
-    media?: string[];
-    createdAt: Date;
-    likes: string[];
-    comments: Comment[];
-    userProfilePicture?: string;
-  };
+  post: Post;
+  onLike: (postId: string) => void;
+  onComment: (postId: string, content: string) => void;
+  onLikeComment: (commentId: string) => void;
+  onReplyComment: (commentId: string, content: string) => void;
+  onDelete?: (postId: string) => void;
 }
 
-export const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const { user: loggedInUser, users } = useAuthStore();
-  const { likePost, deletePost } = usePostsStore();
-  const [isLiked, setIsLiked] = useState(post.likes.includes(loggedInUser?.id || ''));
-  const [postUser, setPostUser] = useState({username: "User Name", profilePicture: "https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=150"})
+const PostCard = ({ 
+  post, 
+  onLike, 
+  onComment, 
+  onLikeComment,
+  onReplyComment,
+  onDelete 
+}: PostCardProps) => {
+  const [avatarImage] = useState<string | null>(() => localStorage.getItem('avatarImage'));
+  const { toast } = useToast();
 
-  useEffect(() => {
-    const poster = users?.find(u => u.id === post.userId)
-    if(poster){
-      setPostUser(poster)
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(post.id);
+      toast({
+        title: "Success",
+        description: "Post deleted successfully",
+      });
     }
-  }, [post, users])
-
-  const handleLike = useCallback(() => {
-    if (!loggedInUser) return;
-    likePost(post.id, loggedInUser.id);
-    setIsLiked(!isLiked);
-  }, [likePost, loggedInUser, post.id, isLiked]);
-
-  if (!post) {
-    return <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg p-4 mb-4">Loading...</div>;
-  }
+  };
 
   return (
-    <motion.div
-      className="bg-gray-900/50 backdrop-blur-sm rounded-lg p-4 mb-4"
-      initial={{ opacity: 0, y: -20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      viewport={{ once: true }}
-    >
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center space-x-2">
-          <img
-            src={post.userProfilePicture || postUser?.profilePicture || 'https://images.unsplash.com/photo-1522529599102-193c0d76b5b6?w=150'} // Replace with user profile pic
-            alt={postUser?.username}
-            className="h-8 w-8 rounded-full object-cover"
-          />
-          <span className="text-white font-medium">{postUser?.username}</span>
-          <span className="text-gray-400 text-sm"> · {post.createdAt instanceof Date ? post.createdAt.toLocaleDateString() : 'Invalid Date'}</span>
+    <Card className="bg-[#1a1d21]/60 backdrop-blur-lg border-none shadow-lg overflow-hidden animate-in fade-in duration-700 ease-in-out">
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-10 w-10 border-2 border-[#E41E12]">
+              {avatarImage ? (
+                <img src={avatarImage} alt={post.userName} className="object-cover" />
+              ) : (
+                <AvatarFallback className="text-xs">
+                  {post.userName.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              )}
+            </Avatar>
+            <div>
+              <h3 className="font-semibold text-[#E41E12]">{post.userName}</h3>
+              <p className="text-sm text-gray-400">
+                {new Date(post.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+          {onDelete && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-gray-400 hover:text-white transition-colors ease-in-out">
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-[#E41E12] border-none">
+                <DropdownMenuItem 
+                  className="text-white focus:text-white focus:bg-[#ff2a1f] transition-colors ease-in-out"
+                  onClick={handleDelete}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Post
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
-        {loggedInUser?.id === post.userId && (
-          <Menu as="div" className="relative inline-block text-left">
-            <Menu.Button className="text-gray-400 hover:text-white transition-colors">
-              <MoreHorizontal size={16} />
-            </Menu.Button>
-            <Menu.Items className="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-700 rounded-md bg-[#16171E] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              <div className="px-1 py-1">
-                <Menu.Item>
-                  {({ active }) => (
-                    <button
-                      className={`${
-                        active ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white'
-                      } group flex w-full items-center rounded-md px-2 py-2 text-sm transition-colors`}
-                      onClick={() => deletePost(post.id)}
-                    >
-                      <Trash2
-                        className="mr-2 h-5 w-5"
-                        aria-hidden="true"
-                      />
-                      Delete Post
-                    </button>
-                  )}
-                </Menu.Item>
-              </div>
-            </Menu.Items>
-          </Menu>
+        
+        <p className="text-gray-300 mb-4 break-words">{post.content}</p>
+        
+        {post.mediaUrl && (
+          <div className="mb-4 rounded-lg overflow-hidden">
+            {post.mediaType === 'image' ? (
+              <img src={post.mediaUrl} alt="Post media" className="w-full object-cover" />
+            ) : (
+              <video src={post.mediaUrl} className="w-full" controls />
+            )}
+          </div>
         )}
-      </div>
-      {post.content && <p className="text-white">{post.content}</p>}
-      {post.media && post.media.length > 0 && (
-        <div className="mt-2">
-          {post.media.map((url, index) => (
-            <motion.img
-              key={index}
-              src={url}
-              alt="Post Media"
-              className="rounded-lg w-full mt-2"
-              initial={{ opacity: 0, y: -20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            />
-          ))}
+        
+        <div className="flex gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`p-0 h-auto hover:scale-105 transition-transform ease-in-out ${
+              post.likes.includes("current-user") ? "text-[#E41E12]" : "text-gray-400"
+            }`}
+            onClick={() => onLike(post.id)}
+          >
+            <Heart className="w-5 h-5 mr-1" />
+            {post.likes.length}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-0 h-auto text-gray-400 hover:scale-105 transition-transform ease-in-out"
+          >
+            <MessageSquare className="w-5 h-5 mr-1" />
+            {post.comments.length}
+          </Button>
         </div>
-      )}
-      <div className="flex items-center justify-between mt-3">
-        <LikeButton
-          likes={post.likes}
-          onLike={handleLike}
-          className={`flex items-center space-x-1 text-gray-400 hover:text-[#E41E12] transition-colors ${isLiked ? 'text-[#E41E12]' : ''}`}
-        />
-        <motion.button
-          className="flex items-center space-x-1 text-gray-400 hover:text-white transition-colors"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Rocket size={16} />
-          <span>{post.comments.length} Comments</span>
-        </motion.button>
       </div>
-      <CommentSection postId={post.id} />
-    </motion.div>
+      
+      <div className="border-t border-[#2a2d31] p-4 bg-[#1a1d21]/60 backdrop-blur-lg">
+        <CommentSection
+          postId={post.id}
+          comments={post.comments}
+          onComment={onComment}
+          onLikeComment={handleLikeComment}
+          onReplyComment={handleReplyComment}
+        />
+      </div>
+    </Card>
   );
 };
+
+export default PostCard;
