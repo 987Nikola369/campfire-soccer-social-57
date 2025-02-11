@@ -1,11 +1,12 @@
-
+import React from 'react';
 import { Bell, Home, MessageCircle, Users, LogOut, Rocket as RocketIcon, GraduationCap } from 'lucide-react';
 import { useAuthStore } from '../../store/auth';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 
-export const TopNavigation = () => {
+export const TopNavigation: React.FC = () => {
   const { user, logout } = useAuthStore();
+  const location = useLocation();
 
   return (
     <motion.nav 
@@ -54,7 +55,7 @@ export const TopNavigation = () => {
   );
 };
 
-export const BottomNavigation = () => {
+export const BottomNavigation: React.FC = () => {
   const navItems = [
     { icon: Home, label: 'Home', path: '/' },
     { icon: GraduationCap, label: 'Academy', path: '/academy' },

@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { TopNavigation, BottomNavigation } from './components/layout/Navigation';
 import { useAuthStore } from './store/auth';
 import { usePostsStore } from './store/posts';
@@ -8,7 +8,7 @@ import { Academy } from './pages/Academy';
 import Leaderboard from './components/Leaderboard';
 import { Messages } from './pages/Messages';
 import { Profile } from './pages/Profile';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Landing } from './components/landing';
 
 function App() {
@@ -38,7 +38,6 @@ function App() {
           <Route path="/directory" element={<Leaderboard />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
       <BottomNavigation />
