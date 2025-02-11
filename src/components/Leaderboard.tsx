@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/auth';
@@ -37,6 +36,7 @@ export const Leaderboard: React.FC = () => {
         const bTime = bJoinDate instanceof Date && !isNaN(bJoinDate.getTime()) ? bJoinDate.getTime() : 0;
         return aTime - bTime;
       }
+      // Add sorting logic for activity here if you have an activity field
       return 0;
     });
 
@@ -78,6 +78,7 @@ export const Leaderboard: React.FC = () => {
             onChange={(e) => setSortBy(e.target.value)}
           >
             <option value="joinDate">Join Date</option>
+            {/* Add more sorting options here */}
           </select>
         </div>
         <div>

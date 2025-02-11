@@ -1,8 +1,7 @@
-
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-export const Messages = () => {
+export const Messages: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -12,9 +11,9 @@ export const Messages = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="p-4 pt-16"
+      className="p-4 pt-16" // Added pt-16 for more top spacing
     >
-      <h1>Messages Page</h1>
+      <p className="text-gray-400">Coming soon...</p>
     </motion.div>
   );
 };
